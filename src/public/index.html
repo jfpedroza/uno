@@ -3,11 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <title>Uno</title>
+    <link href="styles.css" type="text/css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="main.js"></script>
+    <!--<script src="models/Color.js"></script>
+    <script src="models/Card.js"></script>
+    <script src="models/NumericCard.js"></script>
+    <script src="models/ActionCard.js"></script>
+    <script src="models/PlusTwoCard.js"></script>
+    <script src="models/PlusFourCard.js"></script>
+    <script src="models/ColorChangeCard.js"></script>
+    <script src="models/ReturnCard.js"></script>
+    <script src="models/SkipCard.js"></script>
+    <script src="models/Deck.js"></script>
+    <script src="models/Player.js"></script>
+    <script src="models/Dummy.js"></script>
+    <script src="main.js"></script>-->
+    <script src="bundle.js"></script>
 </head>
 <body>
-    <h1>Uno</h1>
+    <a href="#" id="restart-btn">Restart</a>
+    <div class="container">
+        <div class="container2">
+            <div class="stage" id="stage-1">
+                <div>
+                    <img src="img/uno-logo.png" height="400"/>
+                </div>
+                <div class="btn-container">
+                    <span class="button" id="btn-enter" >Entrar</span>
+                </div>
+            </div>
+            <div class="stage" id="stage-2">
+                <h2>Jugadores</h2>
+                <div id="players-stg2">
+                    <table id="player-table">
+                        <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="btn-container">
+                    <span class="button" id="btn-start" >Iniciar</span>
+                </div>
+            </div>
+            <div class="stage" id="stage-3">
+                <div class="players">
+                </div>
+                <div id="center">
+                    <div id="deck">
+                        <img src="img/mazo.png"/>
+                    </div>
+                    <div id="current-card">
+                        <img src="img/uno.png" height="200">
+                    </div>
+                    <div id="current-color">
+                    </div>
+                </div>
+                <div id="my-cards">
+
+                </div>
+                <div id="my-player">
+
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

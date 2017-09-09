@@ -1,3 +1,159 @@
 body {
     height: 100%;
 }
+
+.container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.container2 {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    margin-right: -50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.btn-container {
+    width: 100%;
+}
+
+.stage {
+    display: none;
+    text-align: center;
+}#player-table {
+     text-align: center;
+ }
+
+.players {
+    /*border: 2px solid yellow;*/
+}
+
+.player {
+    display: inline-block;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 2px solid yellow;
+    border-top: 4px solid yellow;
+    border-bottom: 4px solid yellow;
+    transition: background-color 1s;
+}
+
+.player:first-child {
+    border-left: 4px solid yellow;
+}
+
+.player:last-child {
+    border-right: 4px solid yellow;
+}
+
+.player.active {
+    /*color: white;
+    /*border: 2px solid greenyellow;*/
+    background-color: greenyellow;
+    transition: background-color 1s;
+}
+
+#deck {
+    display: inline-block;
+}
+
+#center {
+    margin: 30px;
+}
+
+#current-card {
+    display: inline-block;
+    margin-left: 40px;
+}
+
+#current-color {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 25px;
+}
+
+#my-cards {
+}
+
+.card {
+    display: inline-block;
+}
+
+.blue {
+    background-color: #0092E0;
+}
+
+.green {
+    background-color: #019342;
+}
+
+.red {
+    background-color: #E1211E;
+}
+
+.yellow {
+    background-color: #FFF300;
+}
+
+.button {
+    box-shadow: rgb(255, 255, 255) 0px 1px 0px 0px inset;
+    background: linear-gradient(rgb(249, 249, 249) 5%, rgb(233, 233, 233) 100%) rgb(249, 249, 249);
+    border-radius: 6px;
+    border: 1px solid rgb(220, 220, 220);
+    display: inline-block;
+    cursor: pointer;
+    color: rgb(102, 102, 102);
+    font-family: Arial;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 13px 30px;
+    text-decoration: none;
+    text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+}
+
+.button.disabled {
+    color: red;
+    cursor: wait;
+}
+
+a {
+    text-decoration: none;
+    color: blue;
+}
+
+a:visited {
+    color: blue;
+}
+
+#restart-btn {
+    float: right;
+}
+
+.input {
+    display: inline-block;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    padding: 10px 20px;
+    border: 1px solid #b7b7b7;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    font: normal 16px/normal "Times New Roman", Times, serif;
+    color: rgba(0,142,198,1);
+    -o-text-overflow: clip;
+    text-overflow: clip;
+    background: rgba(252,252,252,1);
+    -webkit-box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.2) inset;
+    box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.2) inset;
+    text-shadow: 0 0 0 rgba(255,255,255,0.66) ;
+    -webkit-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    -moz-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    -o-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+}

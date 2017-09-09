@@ -5,10 +5,11 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "npm run build && npm run watch",
-    "build": "npm run build-ts && npm run tslint && npm run copy-static-assets",
+    "build": "npm run build-ts && npm run build-main-ts && npm run tslint && npm run copy-static-assets",
     "serve": "nodemon dist/server.js",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve\"",
     "build-ts": "tsc",
+    "build-main-ts": "browserify src/public/main.ts -p [tsify -p tsconfig2.json ] > dist/public/bundle.js",
     "watch-ts": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "copy-static-assets": "node copyStaticAssets.js",
@@ -37,9 +38,11 @@
     "@types/jquery": "^3.2.12",
     "@types/socket.io": "^1.4.30",
     "@types/socket.io-client": "^1.4.30",
+    "browserify": "^14.4.0",
     "concurrently": "^3.5.0",
     "nodemon": "^1.11.0",
     "shelljs": "^0.7.8",
+    "tsify": "^3.0.3",
     "tslint": "^5.7.0",
     "typescript": "^2.5.2"
   }
