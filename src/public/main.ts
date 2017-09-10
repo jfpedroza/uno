@@ -63,6 +63,10 @@ socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color) {
     setStage(3);
 });
 
+socket.on("set-current-player", function (current: Player) {
+    setCurrentPlayer(current);
+});
+
 $(function() {
     btnRestartClick();
     btnEnterClick();
@@ -204,10 +208,32 @@ function renderCards() {
     $(".card").remove();
     let cards = $("#my-cards");
     player.cards.forEach((c, i) => {
-        cards.append(`<div class="card" id="card-${i}">
-                            <img src="img/${c.getImageName()}" width="100"/>
+        cards.append(`<div class="card ${i % 3 == 0 ? 'valid' : ''}" id="card-${i}">
+                            <img src="img/${c.getImageName()}" height="150"/>
                         </div>`);
     });
+}
+
+function setCurrentPlayer(current: Player) {
+    if (currentPlayer != null) {
+        if (currentPlayer.id == player.id) {
+            $(`#my-player`).removeClass("active");
+        } else {
+            $(`#player-${currentPlayer.id}`).removeClass("active");
+        }
+    }
+    currentPlayer = current;
+    if (currentPlayer.id == player.id) {
+        $(`#my-player`).addClass("active");
+    } else {
+        $(`#player-${currentPlayer.id}`).addClass("active");
+    }
+
+    /* if (currentPlayer.id == player.id) {
+        spinButton.removeClass("disabled");
+    } else {
+        spinButton.addClass("disabled");
+    }*/
 }
 
 function createCard(card: Card): Card {

@@ -6,7 +6,7 @@ export class ColorChangeCard extends ActionCard {
     readonly type = CardType.ColorChange;
 
     constructor() {
-        super("C", Colors.ALL);
+        super("C", Colors.ALL, 50);
     }
 
     getName(): string {

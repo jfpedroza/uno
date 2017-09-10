@@ -22,7 +22,7 @@ app.set("port", process.env.PORT || 3000);
 app.use(express.static(path.join(__dirname, "public")/*, { maxAge: 31557600000 }*/));
 
 const minPlayers = 2;
-const maxPlayers = 10;
+const maxPlayers = 4;
 const initialCards = 7;
 
 let players: Player[] = [];
@@ -87,6 +87,11 @@ io.on("connection", function(socket) {
                 sockets[p.id].emit("start-game", p, currentCard, currentColor);
             });
         }
+    });
+
+    socket.on("ready", function () {
+
+        socket.emit("set-current-player", currentPlayer);
     });
 });
 

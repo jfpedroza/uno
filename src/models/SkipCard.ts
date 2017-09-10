@@ -6,6 +6,6 @@ export class SkipCard extends ActionCard {
     readonly type = CardType.Skip;
 
     constructor(public readonly color: Color) {
-        super("S", color);
+        super("S", color, 20);
     }
 }

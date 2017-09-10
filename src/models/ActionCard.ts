@@ -4,7 +4,7 @@ import {Color} from "./Color";
 export abstract class ActionCard implements Card {
     readonly type: CardType;
 
-    constructor(public readonly code: string, public readonly color: Color) {
+    constructor(public readonly code: string, public readonly color: Color, public readonly points: number) {
 
     }
 

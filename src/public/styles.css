@@ -56,6 +56,27 @@ body {
     transition: background-color 1s;
 }
 
+#my-player-div {
+}
+
+#my-player {
+    width: 80px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: auto;
+    border: 2px solid yellow;
+    transition: background-color 1s;
+}
+
+#my-player.active {
+    background-color: greenyellow;
+    transition: background-color 1s;
+}
+
+#my-player h3 {
+    margin: 0;
+}
+
 #deck {
     display: inline-block;
 }
@@ -78,11 +99,38 @@ body {
     margin-left: 25px;
 }
 
+#uno-btn {
+    display: inline-block;
+    margin-left: 20px;
+}
+
 #my-cards {
 }
 
 .card {
     display: inline-block;
+}
+
+.card img {
+    margin-top: 15px;
+    transition: margin-top, height, width 1s;
+}
+
+.card img:hover {
+    height: 165px;
+    margin-top: 0;
+    transition: margin-top, height, width 1s;
+}
+
+.card.valid img {
+    margin-bottom: 15px;
+    transition: margin-bottom, height, width 1s;
+}
+
+.card.valid img:hover {
+    height: 165px;
+    margin-bottom: 0;
+    transition: margin-bottom, height, width 1s;
 }
 
 .blue {

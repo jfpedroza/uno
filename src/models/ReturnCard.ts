@@ -6,7 +6,7 @@ export class ReturnCard extends ActionCard {
     readonly type = CardType.Return;
 
     constructor(public readonly color: Color) {
-        super("R", color);
+        super("R", color, 20);
     }
 
     getName(): string {

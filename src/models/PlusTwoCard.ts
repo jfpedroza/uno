@@ -6,6 +6,6 @@ export class PlusTwoCard extends ActionCard {
     readonly type = CardType.PlusTwo;
 
     constructor(public readonly color: Color) {
-        super("+2", color);
+        super("+2", color, 20);
     }
 }
