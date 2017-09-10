@@ -85,9 +85,14 @@ body {
     margin: 30px;
 }
 
-#current-card {
+#current-card-container {
     display: inline-block;
     margin-left: 40px;
+}
+
+#current-card {
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 #current-color {
@@ -105,32 +110,112 @@ body {
 }
 
 #my-cards {
+    display: inline-block;
+}
+
+#paginate-left, #paginate-right {
+    display: inline-block;
+    position: relative;
+}
+
+#paginate-left img, #paginate-right img {
+    position: absolute;
+    top: 0;
+}
+
+#paginate-left img {
+    transform: translate(-100%, -190%) !important;
+}
+
+#paginate-right img {
+    transform: translate(0%, -190%) !important;
+}
+
+#paginate-left img:hover, #paginate-right img:hover {
+    cursor: hand;
+}
+
+#paginate-left.disabled img, #paginate-right.disabled img {
+    opacity: 0.6;
+}
+
+#paginate-left.disabled img:hover, #paginate-right.disabled img:hover {
+    cursor: not-allowed;
 }
 
 .card {
+    display: none;
+    width: 100px;
+    height: 170px;
+    position: relative;
+}
+
+.card.visible {
     display: inline-block;
 }
 
 .card img {
+    position: absolute;
+    top: 0;
+    left: 0;
     margin-top: 15px;
-    transition: margin-top, height, width 1s;
+    opacity: 0.6;
+    /*transition: margin-top, height, width 1s;*/
 }
 
-.card img:hover {
+/*.card:hover img {
     height: 165px;
     margin-top: 0;
     transition: margin-top, height, width 1s;
-}
+    z-index: 8;
+}*/
 
 .card.valid img {
-    margin-bottom: 15px;
-    transition: margin-bottom, height, width 1s;
+    margin-top: 0;
+    padding-bottom: 15px;
+    opacity: 1;
+    transition: padding-bottom, height, width 1s;
 }
 
-.card.valid img:hover {
+.card.valid:hover img {
     height: 165px;
-    margin-bottom: 0;
-    transition: margin-bottom, height, width 1s;
+    padding-bottom: 0;
+    transition: padding-bottom, height, width 1s;
+    z-index: 8;
+}
+
+.put-card-btn {
+    display: none;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    border: 2px solid #f5f5f5;
+    border-radius: 50%;
+    color:#f5f5f5;
+    text-align:center;
+    text-decoration:none;
+    background: #464646;
+    box-shadow: 0 0 3px gray;
+    font-size:20px;
+    font-weight:bold;
+    position: absolute;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin-left: 4px;
+    z-index: 10;
+}
+
+.put-card-btn:hover {
+    background: #262626;
+}
+
+.put-card-btn:visited {
+    color:#f5f5f5;
+}
+
+.card.valid:hover .put-card-btn {
+    display: block;
 }
 
 .blue {

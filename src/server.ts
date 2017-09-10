@@ -32,6 +32,7 @@ let deck: Deck = null;
 let auxDeck: Deck = null;
 let currentCard: Card = null;
 let currentColor: Color = null;
+let direction: boolean;
 let sockets: Array<SocketIO.Socket> = [];
 
 io.on("connection", function(socket) {
@@ -62,10 +63,12 @@ io.on("connection", function(socket) {
     });
 
     socket.on("start", function () {
-        if (players.length < minPlayers) {
-            socket.emit("not-enough-players", minPlayers);
+        if (sockets[players[0].id] !== socket) {
+            socket.emit("show-message", `Solo el primer jugador puede iniciar el juego`);
+        } else if (players.length < minPlayers) {
+            socket.emit("show-message", `No hay suficientes jugadores. Mínimo ${minPlayers} jugadores`);
         } else if (players.length > maxPlayers) {
-            socket.emit("too-many-players", maxPlayers);
+            socket.emit("show-message", `Hay demasiados jugadores. Máximo ${maxPlayers} jugadores`);
         } else {
             deck = new Deck();
             deck.fill();
@@ -82,9 +85,10 @@ io.on("connection", function(socket) {
 
             currentPlayer = players[0];
             winner = null;
+            direction = true;
             players.forEach(p => {
                 p.addArray(deck.popAmount(initialCards));
-                sockets[p.id].emit("start-game", p, currentCard, currentColor);
+                sockets[p.id].emit("start-game", p, currentCard, currentColor, direction);
             });
         }
     });

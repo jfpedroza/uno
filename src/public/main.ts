@@ -17,6 +17,9 @@ let players: Player[] = [];
 let currentPlayer: Player = null;
 let currentCard: Card = null;
 let currentColor: Color = null;
+let direction: boolean;
+const pageSize = 5;
+let page = 1;
 
 let stage = 1;
 let socket: Socket;
@@ -40,7 +43,7 @@ socket.on("update-player", function (ply: Player) {
         p.points = ply.points;
     }
 
-    console.log(player == null ? "Player is null" : "Player is not null", ply == null ? "Ply is null" : "Ply is not null");
+    // console.log(player == null ? "Player is null" : "Player is not null", ply == null ? "Ply is null" : "Ply is not null");
 
     if (player.id != ply.id || stage > 2) {
         updatePlayer(ply, true);
@@ -55,11 +58,16 @@ socket.on("too-many-players", function (maxPlayers: number) {
     alert(`Hay demasiados jugadores. Máximo ${maxPlayers} jugadores`);
 });
 
-socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color) {
+socket.on("show-message", function (message: string) {
+    alert(message);
+});
+
+socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color, dir: boolean) {
     player = ply;
     player.cards = createCards(ply.cards);
     currentCard = createCard(cCard);
     currentColor = cColor;
+    direction = dir;
     setStage(3);
 });
 
@@ -67,11 +75,18 @@ socket.on("set-current-player", function (current: Player) {
     setCurrentPlayer(current);
 });
 
+socket.on("set-direction", function (dir: boolean) {
+    direction = dir;
+    renderDirection();
+});
+
 $(function() {
     btnRestartClick();
     btnEnterClick();
     btnSetClick();
     btnStartClick();
+    btnPaginateLeftClick();
+    btnPaginateRightClick();
     setStage(1);
 });
 
@@ -103,6 +118,22 @@ function btnStartClick() {
     });
 }
 
+function btnPaginateLeftClick() {
+    $("#paginate-left img").click(function () {
+        if (!$("#paginate-left").hasClass("disabled")) {
+            setPage(page - 1);
+        }
+    });
+}
+
+function btnPaginateRightClick() {
+    $("#paginate-right img").click(function () {
+        if (!$("#paginate-right").hasClass("disabled")) {
+            setPage(page + 1);
+        }
+    });
+}
+
 function setStage(s: number) {
     $("#stage-" + stage).hide(1000);
     stage = s;
@@ -111,10 +142,11 @@ function setStage(s: number) {
 
 function onStageChange() {
     if (stage == 3) {
-        $("#current-card img").attr("src", "img/" + currentCard.getImageName());
+        $("#current-card").attr("src", "img/" + currentCard.getImageName());
         setCurrentColor();
         renderPlayers();
         renderCards();
+        renderDirection();
 
         socket.emit("ready");
     }
@@ -208,10 +240,13 @@ function renderCards() {
     $(".card").remove();
     let cards = $("#my-cards");
     player.cards.forEach((c, i) => {
-        cards.append(`<div class="card ${i % 3 == 0 ? 'valid' : ''}" id="card-${i}">
+        cards.append(`<div class="card" id="card-${i}">
                             <img src="img/${c.getImageName()}" height="150"/>
+                            <a href="#" class="put-card-btn">OK</a>
                         </div>`);
     });
+
+    setPage(1);
 }
 
 function setCurrentPlayer(current: Player) {
@@ -229,11 +264,43 @@ function setCurrentPlayer(current: Player) {
         $(`#player-${currentPlayer.id}`).addClass("active");
     }
 
-    /* if (currentPlayer.id == player.id) {
-        spinButton.removeClass("disabled");
+    if (currentPlayer.id == player.id) {
+        player.cards.forEach((c, i) => {
+            if (validateCard(c)) {
+                $(`#card-${i}`).addClass("valid");
+            }
+        });
     } else {
-        spinButton.addClass("disabled");
-    }*/
+        $(".card").removeClass("valid");
+    }
+}
+
+function renderDirection() {
+    let code = direction ? "cw" : "acw";
+    $("#arrow-left").attr("src", `img/arrow-${code}-left.png`);
+    $("#arrow-right").attr("src", `img/arrow-${code}-right.png`);
+}
+
+function setPage(p: number) {
+    $(".card").removeClass("visible");
+    page = p;
+    for (let i = (page - 1) * pageSize; i < page * pageSize; i++) {
+        if (i < player.cards.length) {
+            $(`#card-${i}`).addClass("visible");
+        }
+    }
+
+    if (page == 1) {
+        $("#paginate-left").addClass("disabled");
+    } else {
+        $("#paginate-left").removeClass("disabled");
+    }
+
+    if (page * pageSize < player.cards.length) {
+        $("#paginate-right").removeClass("disabled");
+    } else {
+        $("#paginate-right").addClass("disabled");
+    }
 }
 
 function createCard(card: Card): Card {
@@ -255,6 +322,24 @@ function createCard(card: Card): Card {
 
 function createCards(cards: Card[]): Card[] {
     return cards.map(card => createCard(card));
+}
+
+function validateCard(card: Card): boolean {
+    if (card.type == currentCard.type) {
+        if (currentCard.type == CardType.Numeric) {
+            if (card.color.code == currentColor.code) {
+                return true;
+            } else {
+                return (card as NumericCard).num == (currentCard as NumericCard).num;
+            }
+        } else {
+            return true;
+        }
+    } else if (card.type == CardType.PlusFour || card.type == CardType.ColorChange) {
+        return true;
+    } else {
+        return card.color.code == currentColor.code;
+    }
 }
 
 function animateNumber(el: any, newValue: number, time: number) {
