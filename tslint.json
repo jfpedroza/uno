@@ -48,5 +48,6 @@
     "no-internal-module": true,
     "no-trailing-whitespace": true,
     "jsdoc-format": true
-  }
+  },
+  "defaultSeverity": "warning"
 }

@@ -143,18 +143,18 @@ body {
     cursor: not-allowed;
 }
 
-.card {
+.card-uno {
     display: none;
     width: 100px;
     height: 170px;
     position: relative;
 }
 
-.card.visible {
+.card-uno.visible {
     display: inline-block;
 }
 
-.card img {
+.card-uno .image {
     position: absolute;
     top: 0;
     left: 0;
@@ -163,21 +163,21 @@ body {
     /*transition: margin-top, height, width 1s;*/
 }
 
-/*.card:hover img {
+/*.card:hover .image {
     height: 165px;
     margin-top: 0;
     transition: margin-top, height, width 1s;
     z-index: 8;
 }*/
 
-.card.valid img {
+.card-uno.valid .image {
     margin-top: 0;
     padding-bottom: 15px;
     opacity: 1;
     transition: padding-bottom, height, width 1s;
 }
 
-.card.valid:hover img {
+.card-uno.valid:hover .image {
     height: 165px;
     padding-bottom: 0;
     transition: padding-bottom, height, width 1s;
@@ -214,8 +214,12 @@ body {
     color:#f5f5f5;
 }
 
-.card.valid:hover .put-card-btn {
+.card-uno.valid:hover .put-card-btn {
     display: block;
+}
+
+.choose-color {
+    height: 100px;
 }
 
 .blue {

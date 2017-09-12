@@ -4,14 +4,17 @@
 import Socket = SocketIOClient.Socket;
 import {Player} from "../models/Player";
 import {Card, CardType} from "../models/Card";
-import {Color} from "../models/Color";
+import {Color, Colors} from "../models/Color";
 import {NumericCard} from "../models/NumericCard";
 import {ColorChangeCard} from "../models/ColorChangeCard";
 import {PlusFourCard} from "../models/PlusFourCard";
 import {PlusTwoCard} from "../models/PlusTwoCard";
 import {ReturnCard} from "../models/ReturnCard";
 import {SkipCard} from "../models/SkipCard";
+import {Utils} from "../models/Utils";
 
+let socket: Socket;
+let stage = 1;
 let player: Player = null;
 let players: Player[] = [];
 let currentPlayer: Player = null;
@@ -20,9 +23,7 @@ let currentColor: Color = null;
 let direction: boolean;
 const pageSize = 5;
 let page = 1;
-
-let stage = 1;
-let socket: Socket;
+let choosenColor: Color = null;
 
 socket = io.connect(`http://${document.location.hostname}:${document.location.port}`, { "forceNew": true });
 
@@ -41,21 +42,19 @@ socket.on("update-player", function (ply: Player) {
         p.name = ply.name;
         p.cards = createCards(ply.cards);
         p.points = ply.points;
+    } else {
+        console.error("P is NULL");
+    }
+
+    if (player.id == p.id) {
+        player = p;
     }
 
     // console.log(player == null ? "Player is null" : "Player is not null", ply == null ? "Ply is null" : "Ply is not null");
 
     if (player.id != ply.id || stage > 2) {
-        updatePlayer(ply, true);
+        updatePlayer(p, true);
     }
-});
-
-socket.on("not-enough-players", function (minPlayers: number) {
-    alert(`No hay suficientes jugadores. Mínimo ${minPlayers} jugadores`);
-});
-
-socket.on("too-many-players", function (maxPlayers: number) {
-    alert(`Hay demasiados jugadores. Máximo ${maxPlayers} jugadores`);
 });
 
 socket.on("show-message", function (message: string) {
@@ -65,7 +64,7 @@ socket.on("show-message", function (message: string) {
 socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color, dir: boolean) {
     player = ply;
     player.cards = createCards(ply.cards);
-    currentCard = createCard(cCard);
+    currentCard = Utils.createCard(cCard);
     currentColor = cColor;
     direction = dir;
     setStage(3);
@@ -80,6 +79,15 @@ socket.on("set-direction", function (dir: boolean) {
     renderDirection();
 });
 
+socket.on("set-current-card", function (card: Card) {
+    setCurrentCard(Utils.createCard(card));
+});
+
+socket.on("set-current-color", function (color: Color) {
+   currentColor = color;
+   setCurrentColor();
+});
+
 $(function() {
     btnRestartClick();
     btnEnterClick();
@@ -87,6 +95,8 @@ $(function() {
     btnStartClick();
     btnPaginateLeftClick();
     btnPaginateRightClick();
+    btnPutCardClick();
+    selectColorClick();
     setStage(1);
 });
 
@@ -134,6 +144,45 @@ function btnPaginateRightClick() {
     });
 }
 
+function btnPutCardClick() {
+    $("#my-cards").on("click", ".put-card-btn", function (e) {
+        e.preventDefault();
+        let id = $(this).closest("div").attr("id");
+        let cardIndex = parseInt(id.substr(5));
+        let card = player.cards[cardIndex];
+
+        socket.emit("select-card", card);
+
+        if (card.type == CardType.PlusFour || card.type == CardType.ColorChange) {
+            openChooseColorModal();
+        }
+    });
+}
+
+function selectColorClick() {
+    $(".choose-color").click(function () {
+        $("#choose-color-" + choosenColor.codeName).html("");
+        let id = $(this).attr("id");
+        let color = id.substr(13);
+        switch (color) {
+            case "blue":
+                choosenColor = Colors.BLUE;
+                break;
+            case "green":
+                choosenColor = Colors.GREEN;
+                break;
+            case "red":
+                choosenColor = Colors.RED;
+                break;
+            case "yellow":
+                choosenColor = Colors.YELLOW;
+                break;
+        }
+
+        $("#choose-color-" + choosenColor.codeName).html("<h2>Seleccionado</h2>");
+    });
+}
+
 function setStage(s: number) {
     $("#stage-" + stage).hide(1000);
     stage = s;
@@ -142,7 +191,7 @@ function setStage(s: number) {
 
 function onStageChange() {
     if (stage == 3) {
-        $("#current-card").attr("src", "img/" + currentCard.getImageName());
+        setCurrentCard(currentCard);
         setCurrentColor();
         renderPlayers();
         renderCards();
@@ -209,40 +258,26 @@ function updatePlayer(p: Player, animate: boolean) {
         } else {
             $(`${id}`).html(`<h5>${p.name}</h5><h3>${p.points}</h3>`);
         }
+
+        if (player.id == p.id) {
+            renderCards();
+        }
     }
 }
 
 function setCurrentColor() {
-    let color = "";
-    switch (currentColor.code) {
-        case "R":
-            color = "red";
-            break;
-        case "V":
-            color = "green";
-            break;
-        case "AZ":
-            color = "blue";
-            break;
-        case "AM":
-            color = "yellow";
-            break;
-        default:
-            console.error("Unespected color code: ", currentColor);
-            break;
-    }
 
     $("#current-color").removeClass("red green blue yellow")
-        .addClass(color);
+        .addClass(currentColor.codeName);
 }
 
 function renderCards() {
-    $(".card").remove();
+    $(".card-uno").remove();
     let cards = $("#my-cards");
     player.cards.forEach((c, i) => {
-        cards.append(`<div class="card" id="card-${i}">
-                            <img src="img/${c.getImageName()}" height="150"/>
-                            <a href="#" class="put-card-btn">OK</a>
+        cards.append(`<div class="card-uno" id="card-${i}">
+                            <img class="image" src="img/${c.getImageName()}" height="150"/>
+                            <a href="#" class="put-card-btn"><img src="img/check.png"/></a>
                         </div>`);
     });
 
@@ -271,7 +306,7 @@ function setCurrentPlayer(current: Player) {
             }
         });
     } else {
-        $(".card").removeClass("valid");
+        $(".card-uno").removeClass("valid");
     }
 }
 
@@ -281,8 +316,16 @@ function renderDirection() {
     $("#arrow-right").attr("src", `img/arrow-${code}-right.png`);
 }
 
+function setCurrentCard(card: Card) {
+    if (currentCard !== card) {
+        currentCard = card;
+    }
+
+    $("#current-card").attr("src", "img/" + currentCard.getImageName());
+}
+
 function setPage(p: number) {
-    $(".card").removeClass("visible");
+    $(".card-uno").removeClass("visible");
     page = p;
     for (let i = (page - 1) * pageSize; i < page * pageSize; i++) {
         if (i < player.cards.length) {
@@ -303,25 +346,8 @@ function setPage(p: number) {
     }
 }
 
-function createCard(card: Card): Card {
-    switch (card.type) {
-        case CardType.Numeric:
-            return new NumericCard((card as NumericCard).num, card.color);
-        case CardType.ColorChange:
-            return new ColorChangeCard();
-        case CardType.PlusFour:
-            return new PlusFourCard();
-        case CardType.PlusTwo:
-            return new PlusTwoCard(card.color);
-        case CardType.Return:
-            return new ReturnCard(card.color);
-        case CardType.Skip:
-            return new SkipCard(card.color);
-    }
-}
-
 function createCards(cards: Card[]): Card[] {
-    return cards.map(card => createCard(card));
+    return cards.map(card => Utils.createCard(card));
 }
 
 function validateCard(card: Card): boolean {
@@ -355,5 +381,23 @@ function animateNumber(el: any, newValue: number, time: number) {
         step: function (now: number) {
             el.text(Math.ceil(now));
         }
+    });
+}
+
+function openChooseColorModal() {
+    choosenColor = currentColor;
+    $("#choose-color-" + choosenColor.codeName).html("<h2>Seleccionado</h2>");
+
+    let modal = $("#choose-color-modal");
+    modal.modal({
+        backdrop: true,
+        keyboard: false,
+        show: true
+    });
+
+    modal.on("hide.bs.modal", function () {
+        $("#choose-color-" + choosenColor.codeName).html("");
+        socket.emit("select-color", choosenColor);
+        socket.emit("turn-ended");
     });
 }

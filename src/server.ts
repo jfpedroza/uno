@@ -10,6 +10,7 @@ import {Deck} from "./models/Deck";
 import {Card, CardType} from "./models/Card";
 import {Color} from "./models/Color";
 import {NumericCard} from "./models/NumericCard";
+import {Utils} from "./models/Utils";
 
 dotenv.config({ path: ".env" });
 
@@ -97,8 +98,73 @@ io.on("connection", function(socket) {
 
         socket.emit("set-current-player", currentPlayer);
     });
+
+    socket.on("select-card", function (card: Card) {
+        auxDeck.push(currentCard);
+        currentCard = Utils.createCard(card);
+        let index = 0;
+        currentPlayer.cards.forEach((c, i) => {
+            if (Utils.compareCard(c, currentCard)) {
+                index = i;
+                return false;
+            }
+            console.log("\n\n\n");
+        });
+
+        currentPlayer.cards.splice(index, 1);
+
+        io.sockets.emit("set-current-card", currentCard);
+        socket.emit("update-player", currentPlayer);
+
+        if (currentCard.type != CardType.ColorChange && currentCard.type != CardType.PlusFour) {
+            currentColor = currentCard.color;
+            io.sockets.emit("set-current-color", currentColor);
+
+            if (currentCard.type == CardType.Return) {
+                direction = !direction;
+                io.sockets.emit("set-direction", direction);
+            }
+
+            currentPlayer = getNextPlayer();
+            io.sockets.emit("set-current-player", currentPlayer);
+        }
+    });
+
+    socket.on("select-color", function (color: Color) {
+        currentColor = color;
+        io.sockets.emit("set-current-color", currentColor);
+    });
+
+    socket.on("turn-ended", function () {
+        currentPlayer = getNextPlayer();
+        io.sockets.emit("set-current-player", currentPlayer);
+    });
 });
 
 server.listen(app.get("port"), function() {
     console.log("Server running at http://localhost:" + app.get("port"));
 });
+
+function getNextPlayer(): Player {
+    let dif = 1;
+    if (currentCard.type == CardType.Skip) {
+        dif = 2;
+    }
+
+    if (!direction) {
+        dif = -dif;
+    }
+
+    let index = players.indexOf(currentPlayer);
+    let newIndex = index + dif;
+
+    if (newIndex < 0) {
+        newIndex += players.length;
+    }
+
+    if (newIndex >= players.length) {
+        newIndex -= players.length;
+    }
+
+    return players[newIndex];
+}

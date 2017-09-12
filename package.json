@@ -33,6 +33,7 @@
     "socket.io": "^2.0.3"
   },
   "devDependencies": {
+    "@types/bootstrap": "^3.3.36",
     "@types/dotenv": "^4.0.1",
     "@types/express": "^4.0.37",
     "@types/jquery": "^3.2.12",
