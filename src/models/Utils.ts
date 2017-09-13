@@ -25,6 +25,11 @@ export class Utils {
         }
     }
 
+    public static createCards(cards: Card[]): Card[] {
+        return cards.map(card => Utils.createCard(card));
+    }
+
+
     public static compareCard(card1: Card, card2: Card): boolean {
 
         if (card1.type != card2.type) {

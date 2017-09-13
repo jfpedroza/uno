@@ -138,6 +138,31 @@ io.on("connection", function(socket) {
         io.sockets.emit("set-current-card", currentCard, currentPlayer);
         socket.emit("update-player", currentPlayer);
 
+        if (currentCard.type == CardType.PlusFour || currentCard.type == CardType.PlusTwo) {
+            let amount = 2;
+            if (currentCard.type == CardType.PlusFour) {
+                amount = 4;
+            }
+
+            let cards = deck.popAmount(amount);
+            let player = getNextPlayer();
+            player.addArray(cards);
+            sockets[player.id].emit("add-cards", cards);
+
+            let notif: UnoNotification = {
+                title: "Alguien tiene nuevas cartas",
+                message: `${player.name} tiene ${amount} nuevas cartas`,
+                type: NotificationTypes.Info,
+                position: NotifPositions.BottomLeft
+            };
+
+            players.forEach(p => {
+                if (p.id != player.id) {
+                    sockets[p.id].emit("show-notification", notif);
+                }
+            });
+        }
+
         if (currentCard.type != CardType.ColorChange && currentCard.type != CardType.PlusFour) {
             if (currentColor.code != currentCard.color.code) {
                 currentColor = currentCard.color;
@@ -162,6 +187,30 @@ io.on("connection", function(socket) {
     socket.on("turn-ended", function () {
         currentPlayer = getNextPlayer();
         io.sockets.emit("set-current-player", currentPlayer);
+    });
+
+    socket.on("pick-from-deck", function (player: Player) {
+        let card = deck.pop();
+        players.forEach(p => {
+            if (p.id == player.id) {
+                p.add(card);
+                return false;
+            }
+        });
+        sockets[player.id].emit("add-cards", [ card]);
+
+        let notif: UnoNotification = {
+            title: "Carta del mazo",
+            message: `${player.name} tomó una carta del mazo`,
+            type: NotificationTypes.Info,
+            position: NotifPositions.BottomLeft
+        };
+
+        players.forEach(p => {
+            if (p.id != player.id) {
+                sockets[p.id].emit("show-notification", notif);
+            }
+        });
     });
 });
 

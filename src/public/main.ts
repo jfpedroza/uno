@@ -7,7 +7,7 @@ import {Card, CardType} from "../models/Card";
 import {Color, Colors} from "../models/Color";
 import {NumericCard} from "../models/NumericCard";
 import {Utils} from "../models/Utils";
-import {NotificationPosition, NotificationTypes, NotifPositions, UnoNotification} from "../models/Notification";
+import {NotificationTypes, NotifPositions, UnoNotification} from "../models/Notification";
 
 let socket: Socket;
 let stage = 1;
@@ -36,7 +36,7 @@ socket.on("update-player", function (ply: Player) {
     let p = getPlayer(ply.id);
     if (p != null) {
         p.name = ply.name;
-        p.cards = createCards(ply.cards);
+        p.cards = Utils.createCards(ply.cards);
         p.points = ply.points;
     } else {
         console.error("P is NULL");
@@ -63,7 +63,7 @@ socket.on("show-notification", function (notification: UnoNotification) {
 
 socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color, dir: boolean) {
     player = ply;
-    player.cards = createCards(ply.cards);
+    player.cards = Utils.createCards(ply.cards);
     currentCard = Utils.createCard(cCard);
     currentColor = cColor;
     direction = dir;
@@ -119,6 +119,20 @@ socket.on("set-current-color", function (color: Color, ply: Player) {
         showNotification(notif);
     }
 
+});
+
+socket.on("add-cards", function(cards: Card[]) {
+    cards = Utils.createCards(cards);
+    player.cards.push(... cards);
+    showNewCardsModal(cards);
+    renderCards();
+    validateCards();
+
+    if (currentPlayer.id == player.id && cards.length == 1) {
+        if (!validateCard(cards[0])) {
+            socket.emit("turn-ended");
+        }
+    }
 });
 
 $(function() {
@@ -238,7 +252,7 @@ function selectColorClick() {
 function btnPickFromDeckClick() {
     $("#deck .put-card-btn").click(function (e) {
         e.preventDefault();
-        alert("Click on deck");
+        socket.emit("pick-from-deck", player);
     });
 }
 
@@ -358,15 +372,7 @@ function setCurrentPlayer(current: Player) {
         $(`#player-${currentPlayer.id}`).addClass("active");
     }
 
-    if (currentPlayer.id == player.id) {
-        player.cards.forEach((c, i) => {
-            if (validateCard(c)) {
-                $(`#card-${i}`).addClass("valid");
-            }
-        });
-    } else {
-        $(".card-uno").removeClass("valid");
-    }
+    validateCards();
 }
 
 function renderDirection() {
@@ -405,10 +411,6 @@ function setPage(p: number) {
     }
 }
 
-function createCards(cards: Card[]): Card[] {
-    return cards.map(card => Utils.createCard(card));
-}
-
 function validateCard(card: Card): boolean {
     if (card.type == currentCard.type) {
         if (currentCard.type == CardType.Numeric) {
@@ -424,6 +426,20 @@ function validateCard(card: Card): boolean {
         return true;
     } else {
         return card.color.code == currentColor.code;
+    }
+}
+
+function validateCards() {
+    if (currentPlayer.id == player.id) {
+        player.cards.forEach((c, i) => {
+            if (validateCard(c)) {
+                $(`#card-${i}`).addClass("valid");
+            } else {
+                $(`#card-${i}`).removeClass("valid");
+            }
+        });
+    } else {
+        $(".card-uno").removeClass("valid");
     }
 }
 
@@ -458,6 +474,30 @@ function openChooseColorModal() {
         $("#choose-color-" + choosenColor.codeName).html("");
         socket.emit("select-color", choosenColor);
         socket.emit("turn-ended");
+    });
+}
+
+function showNewCardsModal(cards: Card[]) {
+    let modal = $("#new-cards-modal");
+    let content = $("#new-card-content");
+    content.html("");
+    let row: JQuery;
+
+    cards.forEach((card, i) => {
+        if (i % 2 == 0) {
+            row = $("<div class='row'></div>");
+            row.appendTo(content);
+        }
+
+        row.append(`<div class="col">
+                        <img src="img/${card.getImageName()}"/>
+                    </div>`);
+    });
+
+    modal.modal({
+        backdrop: false,
+        keyboard: true,
+        show: true
     });
 }
 
