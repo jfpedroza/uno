@@ -130,6 +130,7 @@ $(function() {
     btnPaginateRightClick();
     btnPutCardClick();
     selectColorClick();
+    btnPickFromDeckClick();
     setStage(1);
 
     toastr.options = {
@@ -231,6 +232,13 @@ function selectColorClick() {
         }
 
         $("#choose-color-" + choosenColor.codeName).html("<h2>Seleccionado</h2>");
+    });
+}
+
+function btnPickFromDeckClick() {
+    $("#deck .put-card-btn").click(function (e) {
+        e.preventDefault();
+        alert("Click on deck");
     });
 }
 

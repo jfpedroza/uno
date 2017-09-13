@@ -79,6 +79,15 @@ body {
 
 #deck {
     display: inline-block;
+    width: 228px;
+    height: 204px;
+    position: relative;
+}
+
+#deck-img {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 #center {
@@ -90,9 +99,14 @@ body {
     margin-left: 40px;
 }
 
+#arrow-left, #arrow-right {
+    float: left;
+}
+
 #current-card {
     margin-left: 10px;
     margin-right: 10px;
+    float: left;
 }
 
 #current-color {
@@ -215,6 +229,10 @@ body {
 }
 
 .card-uno.valid:hover .put-card-btn {
+    display: block;
+}
+
+#deck:hover .put-card-btn {
     display: block;
 }
 
