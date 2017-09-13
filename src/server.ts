@@ -11,6 +11,7 @@ import {Card, CardType} from "./models/Card";
 import {Color} from "./models/Color";
 import {NumericCard} from "./models/NumericCard";
 import {Utils} from "./models/Utils";
+import {NotificationTypes, NotifPositions, UnoNotification} from "./models/Notification";
 
 dotenv.config({ path: ".env" });
 
@@ -65,11 +66,32 @@ io.on("connection", function(socket) {
 
     socket.on("start", function () {
         if (sockets[players[0].id] !== socket) {
-            socket.emit("show-message", `Solo el primer jugador puede iniciar el juego`);
+            let notif: UnoNotification = {
+                title: "No se pudo iniciar el juego",
+                message: `Solo el primer jugador puede iniciar el juego`,
+                type: NotificationTypes.Error,
+                position: NotifPositions.TopCenter
+            };
+            socket.emit("show-notification", notif);
+
         } else if (players.length < minPlayers) {
-            socket.emit("show-message", `No hay suficientes jugadores. Mínimo ${minPlayers} jugadores`);
+            let notif: UnoNotification = {
+                title: "No se pudo iniciar el juego",
+                message: `No hay suficientes jugadores. Mínimo ${minPlayers} jugadores`,
+                type: NotificationTypes.Error,
+                position: NotifPositions.TopCenter
+            };
+            socket.emit("show-notification", notif);
+
         } else if (players.length > maxPlayers) {
-            socket.emit("show-message", `Hay demasiados jugadores. Máximo ${maxPlayers} jugadores`);
+            let notif: UnoNotification = {
+                title: "No se pudo iniciar el juego",
+                message: `Hay demasiados jugadores. Máximo ${maxPlayers} jugadores`,
+                type: NotificationTypes.Error,
+                position: NotifPositions.TopCenter
+            };
+            socket.emit("show-notification", notif);
+
         } else {
             deck = new Deck();
             deck.fill();
@@ -113,12 +135,14 @@ io.on("connection", function(socket) {
 
         currentPlayer.cards.splice(index, 1);
 
-        io.sockets.emit("set-current-card", currentCard);
+        io.sockets.emit("set-current-card", currentCard, currentPlayer);
         socket.emit("update-player", currentPlayer);
 
         if (currentCard.type != CardType.ColorChange && currentCard.type != CardType.PlusFour) {
-            currentColor = currentCard.color;
-            io.sockets.emit("set-current-color", currentColor);
+            if (currentColor.code != currentCard.color.code) {
+                currentColor = currentCard.color;
+                io.sockets.emit("set-current-color", currentColor, currentPlayer);
+            }
 
             if (currentCard.type == CardType.Return) {
                 direction = !direction;
@@ -132,7 +156,7 @@ io.on("connection", function(socket) {
 
     socket.on("select-color", function (color: Color) {
         currentColor = color;
-        io.sockets.emit("set-current-color", currentColor);
+        io.sockets.emit("set-current-color", currentColor, currentPlayer);
     });
 
     socket.on("turn-ended", function () {

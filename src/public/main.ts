@@ -6,12 +6,8 @@ import {Player} from "../models/Player";
 import {Card, CardType} from "../models/Card";
 import {Color, Colors} from "../models/Color";
 import {NumericCard} from "../models/NumericCard";
-import {ColorChangeCard} from "../models/ColorChangeCard";
-import {PlusFourCard} from "../models/PlusFourCard";
-import {PlusTwoCard} from "../models/PlusTwoCard";
-import {ReturnCard} from "../models/ReturnCard";
-import {SkipCard} from "../models/SkipCard";
 import {Utils} from "../models/Utils";
+import {NotificationPosition, NotificationTypes, NotifPositions, UnoNotification} from "../models/Notification";
 
 let socket: Socket;
 let stage = 1;
@@ -61,6 +57,10 @@ socket.on("show-message", function (message: string) {
     alert(message);
 });
 
+socket.on("show-notification", function (notification: UnoNotification) {
+    showNotification(notification);
+});
+
 socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color, dir: boolean) {
     player = ply;
     player.cards = createCards(ply.cards);
@@ -72,6 +72,14 @@ socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color, dir: 
 
 socket.on("set-current-player", function (current: Player) {
     setCurrentPlayer(current);
+    let notif: UnoNotification = {
+        title: "Cambio de turno",
+        message: currentPlayer.id == player.id ? "Es tu turno" : `${currentPlayer.name} tiene el turno`,
+        type: NotificationTypes.Info,
+        position: NotifPositions.BottomLeft
+    };
+
+    showNotification(notif);
 });
 
 socket.on("set-direction", function (dir: boolean) {
@@ -79,13 +87,38 @@ socket.on("set-direction", function (dir: boolean) {
     renderDirection();
 });
 
-socket.on("set-current-card", function (card: Card) {
+socket.on("set-current-card", function (card: Card, ply: Player) {
     setCurrentCard(Utils.createCard(card));
+
+    if (ply.id != player.id) {
+
+        let notif: UnoNotification = {
+            title: "Se puso una carta",
+            message: `${currentPlayer.name} puso ${currentCard.getName()}`,
+            type: NotificationTypes.Info,
+            position: NotifPositions.BottomLeft
+        };
+
+        showNotification(notif);
+    }
 });
 
-socket.on("set-current-color", function (color: Color) {
-   currentColor = color;
-   setCurrentColor();
+socket.on("set-current-color", function (color: Color, ply: Player) {
+    currentColor = color;
+    setCurrentColor();
+
+    if (ply.id != player.id) {
+
+        let notif: UnoNotification = {
+            title: "Cambio de color",
+            message: `${currentPlayer.name} puso el color en ${color.name}`,
+            type: NotificationTypes.Info,
+            position: NotifPositions.BottomLeft
+        };
+
+        showNotification(notif);
+    }
+
 });
 
 $(function() {
@@ -98,6 +131,24 @@ $(function() {
     btnPutCardClick();
     selectColorClick();
     setStage(1);
+
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": 300,
+        "hideDuration": 1000,
+        "timeOut": 5000,
+        "extendedTimeOut": 1000,
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
 });
 
 function btnRestartClick() {
@@ -400,4 +451,17 @@ function openChooseColorModal() {
         socket.emit("select-color", choosenColor);
         socket.emit("turn-ended");
     });
+}
+
+function showNotification(notification: UnoNotification) {
+    if (notification.position == null) {
+        notification.position = NotifPositions.TopRight;
+    }
+
+    toastr.options.positionClass = "toast-" + notification.position.name;
+    if (notification.title != null) {
+        toastr[notification.type.name](notification.message, notification.title);
+    } else {
+        toastr[notification.type.name](notification.message);
+    }
 }
