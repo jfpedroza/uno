@@ -62,7 +62,7 @@ body {
 }
 
 #my-player {
-    width: 80px;
+    display: inline-block;
     padding-left: 10px;
     padding-right: 10px;
     margin: auto;
@@ -75,7 +75,7 @@ body {
     transition: background-color 1s;
 }
 
-#my-player h3 {
+#my-player h6 {
     margin: 0;
 }
 

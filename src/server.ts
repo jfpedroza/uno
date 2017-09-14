@@ -57,7 +57,6 @@ io.on("connection", function(socket) {
         players.forEach(p => {
             if (p.id == player.id) {
                 p.name = player.name;
-                p.cards = player.cards;
                 return false;
             }
         });
@@ -117,7 +116,7 @@ io.on("connection", function(socket) {
     });
 
     socket.on("ready", function () {
-
+        socket.emit("update-card-count", Utils.getCardCount(players));
         socket.emit("set-current-player", currentPlayer);
     });
 
@@ -136,6 +135,7 @@ io.on("connection", function(socket) {
 
         io.sockets.emit("set-current-card", currentCard, currentPlayer);
         socket.emit("update-player", currentPlayer);
+        io.sockets.emit("update-card-count", Utils.getCardCount(players));
 
         if (currentCard.type == CardType.PlusFour || currentCard.type == CardType.PlusTwo) {
             let amount = 2;
@@ -147,6 +147,7 @@ io.on("connection", function(socket) {
             let player = getNextPlayer(false);
             player.addArray(cards);
             sockets[player.id].emit("add-cards", cards);
+            io.sockets.emit("update-card-count", Utils.getCardCount(players));
 
             let notif: UnoNotification = {
                 title: "Alguien tiene nuevas cartas",

@@ -20,6 +20,7 @@ let direction: boolean;
 const pageSize = 5;
 let page = 1;
 let choosenColor: Color = null;
+let cardCounts: any;
 
 socket = io.connect(`http://${document.location.hostname}:${document.location.port}`, { "forceNew": true });
 
@@ -36,21 +37,15 @@ socket.on("update-player", function (ply: Player) {
     let p = getPlayer(ply.id);
     if (p != null) {
         p.name = ply.name;
-        p.cards = Utils.createCards(ply.cards);
         p.points = ply.points;
     } else {
         console.error("P is NULL");
     }
 
-    if (player == null) {
-        console.error("Player is NULL");
-    }
-
-    if (player.id == p.id) {
+    if (player != null && player.id == p.id) {
         player = p;
+        player.cards = Utils.createCards(ply.cards);
     }
-
-    // console.log(player == null ? "Player is null" : "Player is not null", ply == null ? "Ply is null" : "Ply is not null");
 
     if (player.id != ply.id || stage > 2) {
         updatePlayer(p, true);
@@ -139,6 +134,12 @@ socket.on("add-cards", function(cards: Card[]) {
             socket.emit("turn-ended", player);
         }
     }
+});
+
+socket.on("update-card-count", function (counts: number[]) {
+    cardCounts = counts;
+    console.log("Update card count", cardCounts);
+    renderCardCounts();
 });
 
 $(function() {
@@ -297,11 +298,15 @@ function renderPlayers() {
         let plys = $(".players");
         players.forEach(p => {
             if (player.id == p.id) {
-                $("#my-player").html(`<h5>${p.name}</h5><h3>${p.points}</h3>`);
+                $("#my-player").html(`
+                            <h3 class="player-name">${p.name}</h3>
+                            <h6>Cartas: <span class="player-card-number">0</span></h6>
+                            <h6>Puntos: <span class="player-points">${p.points}</span></h6>`);
             } else {
                 plys.append(`<div class="player" id="player-${p.id}">
-                            <h5>${p.name}</h5>
-                            <h3>${p.points}</h3>
+                            <h3 class="player-name">${p.name}</h3>
+                            <h6>Cartas: <span class="player-card-number">0</span></h6>
+                            <h6>Puntos: <span class="player-points">${p.points}</span></h6>
                         </div>`);
             }
         });
@@ -317,9 +322,9 @@ function updatePlayer(p: Player, animate: boolean) {
             id = "#my-player";
         }
         if (animate) {
-            animateNumber($(`${id} h3`), p.points, 300);
+            animateNumber($(`${id} .player-points`), p.points, 300);
         } else {
-            $(`${id}`).html(`<h5>${p.name}</h5><h3>${p.points}</h3>`);
+            $(`${id} .player-points`).html(`${p.points}`);
         }
 
         if (player.id == p.id) {
@@ -431,6 +436,17 @@ function validateCards() {
     } else {
         $(".card-uno").removeClass("valid");
     }
+}
+
+function renderCardCounts() {
+    players.forEach(p => {
+        let id = `#player-${p.id}`;
+        if (player.id == p.id) {
+            id = "#my-player";
+        }
+
+        animateNumber($(`${id} .player-card-number`), cardCounts[p.id], 300);
+    });
 }
 
 function animateNumber(el: any, newValue: number, time: number) {

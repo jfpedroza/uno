@@ -5,6 +5,7 @@ import {PlusFourCard} from "./PlusFourCard";
 import {PlusTwoCard} from "./PlusTwoCard";
 import {ReturnCard} from "./ReturnCard";
 import {SkipCard} from "./SkipCard";
+import {Player} from "./Player";
 
 export class Utils {
 
@@ -29,7 +30,6 @@ export class Utils {
         return cards.map(card => Utils.createCard(card));
     }
 
-
     public static compareCard(card1: Card, card2: Card): boolean {
 
         if (card1.type != card2.type) {
@@ -45,5 +45,14 @@ export class Utils {
         } else {
             return true;
         }
+    }
+
+    public static getCardCount(players: Player[]) {
+        let array: any = {};
+        players.forEach(p => {
+            array[p.id] = p.cards.length;
+        });
+
+        return array;
     }
 }
