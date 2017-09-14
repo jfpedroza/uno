@@ -144,7 +144,7 @@ io.on("connection", function(socket) {
             }
 
             let cards = deck.popAmount(amount);
-            let player = getNextPlayer();
+            let player = getNextPlayer(false);
             player.addArray(cards);
             sockets[player.id].emit("add-cards", cards);
 
@@ -173,7 +173,7 @@ io.on("connection", function(socket) {
                 io.sockets.emit("set-direction", direction);
             }
 
-            currentPlayer = getNextPlayer();
+            currentPlayer = getNextPlayer(true);
             io.sockets.emit("set-current-player", currentPlayer);
         }
     });
@@ -184,7 +184,7 @@ io.on("connection", function(socket) {
     });
 
     socket.on("turn-ended", function (player: Player) {
-        currentPlayer = getNextPlayer();
+        currentPlayer = getNextPlayer(false);
         io.sockets.emit("set-current-player", currentPlayer);
     });
 
@@ -217,9 +217,9 @@ server.listen(app.get("port"), function() {
     console.log("Server running at http://localhost:" + app.get("port"));
 });
 
-function getNextPlayer(): Player {
+function getNextPlayer(shouldSkip: boolean): Player {
     let dif = 1;
-    if (currentCard.type == CardType.Skip) {
+    if (currentCard.type == CardType.Skip && shouldSkip) {
         dif = 2;
     }
 
