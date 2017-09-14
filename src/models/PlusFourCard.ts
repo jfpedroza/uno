@@ -8,4 +8,8 @@ export class PlusFourCard extends ActionCard {
     constructor() {
         super("+4", Colors.ALL, 50);
     }
+
+    getName(): string {
+        return `${this.code}`;
+    }
 }

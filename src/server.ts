@@ -130,7 +130,6 @@ io.on("connection", function(socket) {
                 index = i;
                 return false;
             }
-            console.log("\n\n\n");
         });
 
         currentPlayer.cards.splice(index, 1);
@@ -184,7 +183,7 @@ io.on("connection", function(socket) {
         io.sockets.emit("set-current-color", currentColor, currentPlayer);
     });
 
-    socket.on("turn-ended", function () {
+    socket.on("turn-ended", function (player: Player) {
         currentPlayer = getNextPlayer();
         io.sockets.emit("set-current-player", currentPlayer);
     });

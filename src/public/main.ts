@@ -42,6 +42,10 @@ socket.on("update-player", function (ply: Player) {
         console.error("P is NULL");
     }
 
+    if (player == null) {
+        console.error("Player is NULL");
+    }
+
     if (player.id == p.id) {
         player = p;
     }
@@ -129,13 +133,17 @@ socket.on("add-cards", function(cards: Card[]) {
     validateCards();
 
     if (currentPlayer.id == player.id && cards.length == 1) {
+        console.log(`Card received from deck: ${cards[0].getName()}`);
         if (!validateCard(cards[0])) {
-            socket.emit("turn-ended");
+            console.log(`Invalid, current card: ${currentCard.getName()}, current color: ${currentColor.name}`);
+            socket.emit("turn-ended", player);
         }
     }
 });
 
 $(function() {
+    configureChooseColorModal();
+    configureToastr();
     btnRestartClick();
     btnEnterClick();
     btnSetClick();
@@ -146,24 +154,6 @@ $(function() {
     selectColorClick();
     btnPickFromDeckClick();
     setStage(1);
-
-    toastr.options = {
-        "closeButton": false,
-        "debug": false,
-        "newestOnTop": false,
-        "progressBar": false,
-        "positionClass": "toast-top-right",
-        "preventDuplicates": false,
-        "onclick": null,
-        "showDuration": 300,
-        "hideDuration": 1000,
-        "timeOut": 5000,
-        "extendedTimeOut": 1000,
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    };
 });
 
 function btnRestartClick() {
@@ -462,18 +452,22 @@ function animateNumber(el: any, newValue: number, time: number) {
 function openChooseColorModal() {
     choosenColor = currentColor;
     $("#choose-color-" + choosenColor.codeName).html("<h2>Seleccionado</h2>");
+    $("#choose-color-modal").modal("show");
+}
+
+function configureChooseColorModal() {
 
     let modal = $("#choose-color-modal");
     modal.modal({
         backdrop: true,
         keyboard: false,
-        show: true
+        show: false
     });
 
     modal.on("hide.bs.modal", function () {
         $("#choose-color-" + choosenColor.codeName).html("");
         socket.emit("select-color", choosenColor);
-        socket.emit("turn-ended");
+        socket.emit("turn-ended", player);
     });
 }
 
@@ -512,4 +506,25 @@ function showNotification(notification: UnoNotification) {
     } else {
         toastr[notification.type.name](notification.message);
     }
+}
+
+function configureToastr() {
+
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": 300,
+        "hideDuration": 1000,
+        "timeOut": 3000,
+        "extendedTimeOut": 1000,
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
 }

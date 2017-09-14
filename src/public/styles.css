@@ -23,7 +23,9 @@ body {
 .stage {
     display: none;
     text-align: center;
-}#player-table {
+}
+
+#player-table {
      text-align: center;
  }
 
@@ -150,6 +152,7 @@ body {
 }
 
 #paginate-left.disabled img, #paginate-right.disabled img {
+    display: none;
     opacity: 0.6;
 }
 
@@ -288,6 +291,7 @@ a:visited {
 
 #restart-btn {
     float: right;
+    margin-right: 5px;
 }
 
 .input {
