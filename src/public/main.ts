@@ -170,11 +170,26 @@ socket.on("end-round", function (winner: Player, winPoints: number) {
     showRoundEndModal(winner, winPoints);
 });
 
+socket.on("logged-out", function (ply: Player) {
+    ply = getPlayer(ply.id);
+    let notif: UnoNotification = {
+        title: "Cierre de sesión",
+        message: `<b>${ply.name}</b> cerró sesión`,
+        type: NotificationTypes.Info,
+        position: NotifPositions.BottomLeft
+    };
+
+    showNotification(notif);
+    players.slice(players.indexOf(ply), 1);
+    renderPlayers();
+});
+
 $(function() {
     configureChooseColorModal();
     configureRoundEndModal();
     configureToastr();
     btnRestartClick();
+    btnLogoutClick();
     btnEnterClick();
     btnSetClick();
     btnStartClick();
@@ -192,6 +207,13 @@ function btnRestartClick() {
     $("#restart-btn").click(function(e) {
         e.preventDefault();
         restart();
+    });
+}
+
+function btnLogoutClick() {
+    $("#log-out-btn").click(function(e) {
+        e.preventDefault();
+        logout();
     });
 }
 
@@ -296,8 +318,10 @@ function setStage(s: number) {
     $("#stage-" + stage).show(1000, onStageChange);
     if (stage > 1) {
         $("#round").show();
+        $("#log-out-btn").show();
     } else {
         $("#round").hide();
+        $("#log-out-btn").hide();
     }
 }
 
@@ -599,6 +623,11 @@ function configureRoundEndModal() {
         setStage(2);
         setRound(round + 1);
     });
+}
+
+function logout() {
+    socket.emit("log-out", player);
+    location.reload(true);
 }
 
 function showNotification(notification: UnoNotification) {

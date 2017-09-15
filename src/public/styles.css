@@ -318,6 +318,11 @@ a:visited {
     margin-left: 5px;
 }
 
+#log-out-btn {
+    float: right;
+    margin-right: 5px;
+}
+
 .input {
     display: inline-block;
     -webkit-box-sizing: content-box;

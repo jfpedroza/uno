@@ -314,6 +314,27 @@ io.on("connection", function(socket) {
         player = getPlayer(player.id);
         player.ready = true;
     });
+
+    socket.on("log-out", function (player: Player) {
+        player = getPlayer(player.id);
+
+        players.splice(players.indexOf(player), 1);
+        if (players.length > 1) {
+            sockets[player.id].disconnect(true);
+            players.forEach(p => {
+                sockets[p.id].emit("logged-out", player);
+                sockets[p.id].emit("update-card-count", Utils.getCardCount(players));
+            });
+
+            if (player.id == currentPlayer.id) {
+                currentPlayer = getNextPlayer(false);
+                io.sockets.emit("set-current-player", currentPlayer);
+            }
+        } else {
+            winner = players[0];
+            io.sockets.emit("end-game", winner);
+        }
+    });
 });
 
 server.listen(app.get("port"), function() {
