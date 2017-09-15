@@ -36,30 +36,32 @@ let currentCard: Card = null;
 let currentColor: Color = null;
 let direction: boolean;
 let sockets: Array<SocketIO.Socket> = [];
+let gameStarted = false;
 
 io.on("connection", function(socket) {
     console.log("A new player has connected");
 
     socket.on("restart", function () {
+        deck = null;
         players = [];
         sockets = [];
+        gameStarted = false;
         io.sockets.emit("restart");
     });
 
     socket.on("new-player", function (player: Player) {
-        console.log("New player: ", player);
-        players.push(new Player(player.id, player.name));
-        sockets[player.id] = socket;
-        io.sockets.emit("players", players);
+        if (!gameStarted) {
+            console.log("New player: ", player);
+            players.push(new Player(player.id, player.name));
+            sockets[player.id] = socket;
+            io.sockets.emit("players", players);
+        } else {
+            socket.emit("game-already-started");
+        }
     });
 
     socket.on("update-player", function (player: Player) {
-        players.forEach(p => {
-            if (p.id == player.id) {
-                p.name = player.name;
-                return false;
-            }
-        });
+        getPlayer(player.id).name = player.name;
         io.sockets.emit("update-player", player);
     });
 
@@ -92,6 +94,7 @@ io.on("connection", function(socket) {
             socket.emit("show-notification", notif);
 
         } else {
+            gameStarted = true;
             deck = new Deck();
             deck.fill();
             deck.suffle();
@@ -143,7 +146,7 @@ io.on("connection", function(socket) {
                 amount = 4;
             }
 
-            let cards = deck.popAmount(amount);
+            let cards = getCardsFromDeck(amount);
             let player = getNextPlayer(false);
             player.addArray(cards);
             sockets[player.id].emit("add-cards", cards);
@@ -151,7 +154,7 @@ io.on("connection", function(socket) {
 
             let notif: UnoNotification = {
                 title: "Alguien tiene nuevas cartas",
-                message: `${player.name} tiene ${amount} nuevas cartas`,
+                message: `<b>${player.name}</b> tiene ${amount} nuevas cartas`,
                 type: NotificationTypes.Info,
                 position: NotifPositions.BottomLeft
             };
@@ -190,21 +193,42 @@ io.on("connection", function(socket) {
     });
 
     socket.on("pick-from-deck", function (player: Player) {
-        let card = deck.pop();
-        players.forEach(p => {
-            if (p.id == player.id) {
-                p.add(card);
-                return false;
-            }
-        });
+        let card = getCardFromDeck();
+        getPlayer(player.id).add(card);
         sockets[player.id].emit("add-cards", [ card]);
 
         let notif: UnoNotification = {
             title: "Carta del mazo",
-            message: `${player.name} tomó una carta del mazo`,
+            message: `<b>${player.name}</b> tomó una carta del mazo`,
             type: NotificationTypes.Info,
             position: NotifPositions.BottomLeft
         };
+
+        players.forEach(p => {
+            if (p.id != player.id) {
+                sockets[p.id].emit("show-notification", notif);
+            }
+        });
+    });
+
+    socket.on("say-uno", function (player: Player) {
+        player = getPlayer(player.id);
+
+        let notif: UnoNotification = {
+            title: "Alguien dijo uno",
+            message: `<b>${player.name}</b> dijo uno`,
+            type: NotificationTypes.Warning,
+            position: NotifPositions.BottomLeft
+        };
+
+        if (player.cards.length > 1) {
+            let cards = getCardsFromDeck(2);
+            player.addArray(cards);
+            socket.emit("add-cards", cards, "no tienes solo una carta");
+            notif.message += ". Fue penalizado por no tener solo una carta.";
+        } else {
+            player.saidUno = true;
+        }
 
         players.forEach(p => {
             if (p.id != player.id) {
@@ -240,4 +264,37 @@ function getNextPlayer(shouldSkip: boolean): Player {
     }
 
     return players[newIndex];
+}
+
+function getPlayer(id: number): Player {
+    const result = players.filter(p => p.id == id);
+    if (result.length > 0) {
+        return result[0];
+    } else {
+        return null;
+    }
+}
+
+function getCardFromDeck(): Card {
+    if (deck.size == 0) {
+        deck = auxDeck;
+        deck.suffle();
+        auxDeck = new Deck();
+    }
+
+    return deck.pop();
+}
+
+function getCardsFromDeck(amount: number): Card[] {
+
+    if (deck.size < amount) {
+        let rem = amount - deck.size;
+        let cards = deck.popAmount(deck.size);
+        deck = auxDeck;
+        deck.suffle();
+        auxDeck = new Deck();
+        cards.push(... deck.popAmount(rem));
+    } else {
+        return deck.popAmount(amount);
+    }
 }

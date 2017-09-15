@@ -123,6 +123,21 @@ body {
 #uno-btn {
     display: inline-block;
     margin-left: 20px;
+    margin-top: 1px;
+}
+
+#uno-btn:hover {
+    margin-left: 19px;
+    margin-top: 0;
+}
+
+#uno-btn img {
+    width: 96px;
+}
+
+#uno-btn img:hover {
+    width: 98px;
+    cursor: pointer;
 }
 
 #my-cards {
@@ -148,7 +163,7 @@ body {
 }
 
 #paginate-left img:hover, #paginate-right img:hover {
-    cursor: hand;
+    cursor: pointer;
 }
 
 #paginate-left.disabled img, #paginate-right.disabled img {

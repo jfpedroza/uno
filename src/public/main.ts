@@ -73,8 +73,8 @@ socket.on("set-current-player", function (current: Player) {
     setCurrentPlayer(current);
     let notif: UnoNotification = {
         title: "Cambio de turno",
-        message: currentPlayer.id == player.id ? "Es tu turno" : `${currentPlayer.name} tiene el turno`,
-        type: NotificationTypes.Info,
+        message: currentPlayer.id == player.id ? "Es tu turno" : `<b>${currentPlayer.name}</b> tiene el turno`,
+        type: currentPlayer.id == player.id ? NotificationTypes.Success : NotificationTypes.Info,
         position: NotifPositions.BottomLeft
     };
 
@@ -93,7 +93,7 @@ socket.on("set-current-card", function (card: Card, ply: Player) {
 
         let notif: UnoNotification = {
             title: "Se puso una carta",
-            message: `${currentPlayer.name} puso ${currentCard.getName()}`,
+            message: `<b>${currentPlayer.name}</b> puso ${currentCard.getName()}`,
             type: NotificationTypes.Info,
             position: NotifPositions.BottomLeft
         };
@@ -110,7 +110,7 @@ socket.on("set-current-color", function (color: Color, ply: Player) {
 
         let notif: UnoNotification = {
             title: "Cambio de color",
-            message: `${currentPlayer.name} puso el color en ${color.name}`,
+            message: `<b>${currentPlayer.name}</b> puso el color en ${color.name}`,
             type: NotificationTypes.Info,
             position: NotifPositions.BottomLeft
         };
@@ -120,10 +120,10 @@ socket.on("set-current-color", function (color: Color, ply: Player) {
 
 });
 
-socket.on("add-cards", function(cards: Card[]) {
+socket.on("add-cards", function(cards: Card[], fault: string) {
     cards = Utils.createCards(cards);
     player.cards.push(... cards);
-    showNewCardsModal(cards);
+    showNewCardsModal(cards, fault);
     renderCards();
     validateCards();
 
@@ -142,6 +142,17 @@ socket.on("update-card-count", function (counts: number[]) {
     renderCardCounts();
 });
 
+socket.on("game-already-started", function () {
+    let notif: UnoNotification = {
+        title: "Partida iniciada",
+        message: `No puedes entrar porque la partida ya inició`,
+        type: NotificationTypes.Error,
+        position: NotifPositions.TopCenter
+    };
+
+    showNotification(notif);
+});
+
 $(function() {
     configureChooseColorModal();
     configureToastr();
@@ -154,6 +165,7 @@ $(function() {
     btnPutCardClick();
     selectColorClick();
     btnPickFromDeckClick();
+    btnUnoClick();
     setStage(1);
 });
 
@@ -244,6 +256,12 @@ function btnPickFromDeckClick() {
     $("#deck .put-card-btn").click(function (e) {
         e.preventDefault();
         socket.emit("pick-from-deck", player);
+    });
+}
+
+function btnUnoClick() {
+    $("#uno-btn").click(function () {
+        socket.emit("say-uno", player);
     });
 }
 
@@ -487,10 +505,15 @@ function configureChooseColorModal() {
     });
 }
 
-function showNewCardsModal(cards: Card[]) {
+function showNewCardsModal(cards: Card[], fault: string) {
     let modal = $("#new-cards-modal");
     let content = $("#new-card-content");
     content.html("");
+
+    if (fault) {
+        content.append(`<div class="row"><h4>Pena: ${fault}</h4></div>`);
+    }
+
     let row: JQuery;
 
     cards.forEach((card, i) => {
