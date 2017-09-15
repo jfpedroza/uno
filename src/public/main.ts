@@ -17,10 +17,12 @@ let currentPlayer: Player = null;
 let currentCard: Card = null;
 let currentColor: Color = null;
 let direction: boolean;
-const pageSize = 5;
+const pageSize = 7;
 let page = 1;
 let choosenColor: Color = null;
 let cardCounts: any;
+let nameEditable = true;
+let round = 1;
 
 socket = io.connect(`http://${document.location.hostname}:${document.location.port}`, { "forceNew": true });
 
@@ -34,6 +36,7 @@ socket.on("players", function (plys: Player[]) {
 });
 
 socket.on("update-player", function (ply: Player) {
+    if (ply.points > 0) console.log(ply.name, ply.points);
     let p = getPlayer(ply.id);
     if (p != null) {
         p.name = ply.name;
@@ -41,6 +44,7 @@ socket.on("update-player", function (ply: Player) {
     } else {
         console.error("P is NULL");
     }
+    if (p.points > 0) console.log(p.name, p.points);
 
     if (player != null && player.id == p.id) {
         player = p;
@@ -60,12 +64,13 @@ socket.on("show-notification", function (notification: UnoNotification) {
     showNotification(notification);
 });
 
-socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color, dir: boolean) {
+socket.on("start-game", function (ply: Player, cCard: Card, cColor: Color, dir: boolean, r: number) {
     player = ply;
     player.cards = Utils.createCards(ply.cards);
     currentCard = Utils.createCard(cCard);
     currentColor = cColor;
     direction = dir;
+    setRound(r);
     setStage(3);
 });
 
@@ -128,9 +133,7 @@ socket.on("add-cards", function(cards: Card[], fault: string) {
     validateCards();
 
     if (currentPlayer.id == player.id && cards.length == 1) {
-        console.log(`Card received from deck: ${cards[0].getName()}`);
         if (!validateCard(cards[0])) {
-            console.log(`Invalid, current card: ${currentCard.getName()}, current color: ${currentColor.name}`);
             socket.emit("turn-ended", player);
         }
     }
@@ -153,8 +156,26 @@ socket.on("game-already-started", function () {
     showNotification(notif);
 });
 
+socket.on("end-game", function (winner: Player) {
+    if (player.id == winner.id) {
+        $("#img-win-lose").attr("src", "img/win.png");
+        $("#winner-player").text(`Ganaste con ${winner.points} puntos`);
+    } else {
+        $("#img-win-lose").attr("src", "img/lose.png");
+        $("#winner-player").text(`${winner.name} ganó con ${winner.points} puntos`);
+    }
+    setStage(4);
+});
+
+socket.on("end-round", function (winner: Player) {
+    nameEditable = false;
+    console.log(winner.name, winner.points);
+    showRoundEndModal(winner);
+});
+
 $(function() {
     configureChooseColorModal();
+    configureRoundEndModal();
     configureToastr();
     btnRestartClick();
     btnEnterClick();
@@ -276,17 +297,26 @@ function setStage(s: number) {
     $("#stage-" + stage).hide(1000);
     stage = s;
     $("#stage-" + stage).show(1000, onStageChange);
+    if (stage > 1) {
+        $("#round").show();
+    } else {
+        $("#round").hide();
+    }
 }
 
 function onStageChange() {
-    if (stage == 3) {
+    if (stage == 2) {
+        renderPlayers();
+        socket.emit("stage-2-ready", player);
+    }
+    else if (stage == 3) {
         setCurrentCard(currentCard);
         setCurrentColor();
         renderPlayers();
         renderCards();
         renderDirection();
 
-        socket.emit("ready");
+        socket.emit("stage-3-ready");
     }
 }
 
@@ -309,7 +339,7 @@ function renderPlayers() {
         table.html("");
         players.forEach(p => {
 
-            if (player.id == p.id) {
+            if (player.id == p.id && nameEditable) {
                 table.append(`<tr id="player-stg2-${p.id}">
                                 <td><input value="${p.name}" class="input" id="player-name" autofocus></td>
                                 <td><button class="button" id="btn-set">Set</button></td>
@@ -431,6 +461,11 @@ function setPage(p: number) {
     }
 }
 
+function setRound(r: number){
+    round = r;
+    $("#round").val(`Round: ${round}`);
+}
+
 function validateCard(card: Card): boolean {
     if (card.type == currentCard.type) {
         if (currentCard.type == CardType.Numeric) {
@@ -538,6 +573,33 @@ function showNewCardsModal(cards: Card[], fault: string) {
         backdrop: false,
         keyboard: true,
         show: true
+    });
+}
+
+function showRoundEndModal(winner: Player) {
+    let modal = $("#round-end-modal");
+    let content = $("#round-end-content");
+
+    if (winner.id == player.id) {
+        content.html(`<h3>Ganaste la ronda</h3><h5>${winner.points} puntos</h5>`);
+    } else {
+        content.html(`<h3>${winner.name} ganó la ronda</h3><h5>${winner.points} puntos</h5>`);
+    }
+
+    modal.modal("show");
+}
+
+function configureRoundEndModal() {
+    let modal = $("#round-end-modal");
+    modal.modal({
+        backdrop: false,
+        keyboard: true,
+        show: false
+    });
+
+    modal.on("hide.bs.modal", function () {
+        setStage(2);
+        setRound(round+1);
     });
 }
 

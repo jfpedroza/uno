@@ -37,15 +37,17 @@ let currentColor: Color = null;
 let direction: boolean;
 let sockets: Array<SocketIO.Socket> = [];
 let gameStarted = false;
+let round = 1;
 
 io.on("connection", function(socket) {
     console.log("A new player has connected");
 
     socket.on("restart", function () {
-        deck = null;
         players = [];
         sockets = [];
         gameStarted = false;
+        round = 1;
+        winner = null;
         io.sockets.emit("restart");
     });
 
@@ -67,6 +69,7 @@ io.on("connection", function(socket) {
 
     socket.on("start", function () {
         if (sockets[players[0].id] !== socket) {
+
             let notif: UnoNotification = {
                 title: "No se pudo iniciar el juego",
                 message: `Solo el primer jugador puede iniciar el juego`,
@@ -76,6 +79,7 @@ io.on("connection", function(socket) {
             socket.emit("show-notification", notif);
 
         } else if (players.length < minPlayers) {
+
             let notif: UnoNotification = {
                 title: "No se pudo iniciar el juego",
                 message: `No hay suficientes jugadores. Mínimo ${minPlayers} jugadores`,
@@ -88,6 +92,15 @@ io.on("connection", function(socket) {
             let notif: UnoNotification = {
                 title: "No se pudo iniciar el juego",
                 message: `Hay demasiados jugadores. Máximo ${maxPlayers} jugadores`,
+                type: NotificationTypes.Error,
+                position: NotifPositions.TopCenter
+            };
+            socket.emit("show-notification", notif);
+
+        } else if (players.some(p => !p.ready)) {
+            let notif: UnoNotification = {
+                title: "No se pudo iniciar el juego",
+                message: `No todos los jugadores están listos`,
                 type: NotificationTypes.Error,
                 position: NotifPositions.TopCenter
             };
@@ -109,18 +122,22 @@ io.on("connection", function(socket) {
             } while (currentCard.type != CardType.Numeric);
 
             currentPlayer = players[0];
-            winner = null;
             direction = true;
             players.forEach(p => {
+                p.cards = [];
                 p.addArray(deck.popAmount(initialCards));
-                sockets[p.id].emit("start-game", p, currentCard, currentColor, direction);
+                sockets[p.id].emit("start-game", p, currentCard, currentColor, direction, round);
             });
         }
     });
 
-    socket.on("ready", function () {
+    socket.on("stage-3-ready", function () {
         socket.emit("update-card-count", Utils.getCardCount(players));
         socket.emit("set-current-player", currentPlayer);
+        if (winner != null) {
+            console.log(winner.name, winner.points);
+            socket.emit("update-player", winner);
+        }
     });
 
     socket.on("select-card", function (card: Card) {
@@ -140,45 +157,65 @@ io.on("connection", function(socket) {
         socket.emit("update-player", currentPlayer);
         io.sockets.emit("update-card-count", Utils.getCardCount(players));
 
-        if (currentCard.type == CardType.PlusFour || currentCard.type == CardType.PlusTwo) {
-            let amount = 2;
-            if (currentCard.type == CardType.PlusFour) {
-                amount = 4;
+        if (currentPlayer.cards.length > 0) {
+
+            if (currentCard.type == CardType.PlusFour || currentCard.type == CardType.PlusTwo) {
+                let amount = 2;
+                if (currentCard.type == CardType.PlusFour) {
+                    amount = 4;
+                }
+
+                let cards = getCardsFromDeck(amount);
+                let player = getNextPlayer(false);
+                player.addArray(cards);
+                sockets[player.id].emit("add-cards", cards);
+                io.sockets.emit("update-card-count", Utils.getCardCount(players));
+
+                let notif: UnoNotification = {
+                    title: "Alguien tiene nuevas cartas",
+                    message: `<b>${player.name}</b> tiene ${amount} nuevas cartas`,
+                    type: NotificationTypes.Info,
+                    position: NotifPositions.BottomLeft
+                };
+
+                players.forEach(p => {
+                    if (p.id != player.id) {
+                        sockets[p.id].emit("show-notification", notif);
+                    }
+                });
             }
 
-            let cards = getCardsFromDeck(amount);
-            let player = getNextPlayer(false);
-            player.addArray(cards);
-            sockets[player.id].emit("add-cards", cards);
-            io.sockets.emit("update-card-count", Utils.getCardCount(players));
+            if (currentCard.type != CardType.ColorChange && currentCard.type != CardType.PlusFour) {
+                if (currentColor.code != currentCard.color.code) {
+                    currentColor = currentCard.color;
+                    io.sockets.emit("set-current-color", currentColor, currentPlayer);
+                }
 
-            let notif: UnoNotification = {
-                title: "Alguien tiene nuevas cartas",
-                message: `<b>${player.name}</b> tiene ${amount} nuevas cartas`,
-                type: NotificationTypes.Info,
-                position: NotifPositions.BottomLeft
-            };
+                if (currentCard.type == CardType.Return) {
+                    direction = !direction;
+                    io.sockets.emit("set-direction", direction);
+                }
 
+                currentPlayer = getNextPlayer(true);
+                io.sockets.emit("set-current-player", currentPlayer);
+            }
+        } else {
+            winner = currentPlayer;
+            console.log(winner.name, winner.points);
             players.forEach(p => {
-                if (p.id != player.id) {
-                    sockets[p.id].emit("show-notification", notif);
+                if (p.id != winner.id) {
+                    winner.points += p.getCardPoints();
                 }
             });
-        }
+            console.log(winner.name, winner.points);
 
-        if (currentCard.type != CardType.ColorChange && currentCard.type != CardType.PlusFour) {
-            if (currentColor.code != currentCard.color.code) {
-                currentColor = currentCard.color;
-                io.sockets.emit("set-current-color", currentColor, currentPlayer);
+            if (winner.points >= 500) {
+                io.sockets.emit("end-game", winner);
+            } else {
+                round++;
+                unreadyPlayers();
+                io.sockets.emit("end-round", winner);
             }
-
-            if (currentCard.type == CardType.Return) {
-                direction = !direction;
-                io.sockets.emit("set-direction", direction);
-            }
-
-            currentPlayer = getNextPlayer(true);
-            io.sockets.emit("set-current-player", currentPlayer);
         }
     });
 
@@ -270,6 +307,11 @@ io.on("connection", function(socket) {
             });
         }
     });
+
+    socket.on("stage-2-ready", function (player: Player) {
+        player = getPlayer(player.id);
+        player.ready = true;
+    });
 });
 
 server.listen(app.get("port"), function() {
@@ -351,4 +393,8 @@ function didntSayUno(player: Player) {
             sockets[p.id].emit("show-notification", notif);
         }
     });
+}
+
+function unreadyPlayers() {
+    players.forEach(p => p.ready = false);
 }
