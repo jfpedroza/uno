@@ -135,7 +135,6 @@ io.on("connection", function(socket) {
         socket.emit("update-card-count", Utils.getCardCount(players));
         socket.emit("set-current-player", currentPlayer);
         if (winner != null) {
-            console.log(winner.name, winner.points);
             socket.emit("update-player", winner);
         }
     });
@@ -157,7 +156,7 @@ io.on("connection", function(socket) {
         socket.emit("update-player", currentPlayer);
         io.sockets.emit("update-card-count", Utils.getCardCount(players));
 
-        if (currentPlayer.cards.length > 0) {
+        if (currentPlayer.cards.length > 5) {
 
             if (currentCard.type == CardType.PlusFour || currentCard.type == CardType.PlusTwo) {
                 let amount = 2;
@@ -201,20 +200,23 @@ io.on("connection", function(socket) {
             }
         } else {
             winner = currentPlayer;
-            console.log(winner.name, winner.points);
+            let newPoints = 0;
             players.forEach(p => {
                 if (p.id != winner.id) {
-                    winner.points += p.getCardPoints();
+                    let points = winner.points;
+                    let cardPoints = p.getCardPoints();
+                    newPoints += p.getCardPoints();
                 }
             });
-            console.log(winner.name, winner.points);
+
+            winner.points += newPoints;
 
             if (winner.points >= 500) {
                 io.sockets.emit("end-game", winner);
             } else {
                 round++;
                 unreadyPlayers();
-                io.sockets.emit("end-round", winner);
+                io.sockets.emit("end-round", winner, newPoints);
             }
         }
     });

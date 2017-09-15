@@ -36,7 +36,7 @@ socket.on("players", function (plys: Player[]) {
 });
 
 socket.on("update-player", function (ply: Player) {
-    if (ply.points > 0) console.log(ply.name, ply.points);
+
     let p = getPlayer(ply.id);
     if (p != null) {
         p.name = ply.name;
@@ -44,14 +44,13 @@ socket.on("update-player", function (ply: Player) {
     } else {
         console.error("P is NULL");
     }
-    if (p.points > 0) console.log(p.name, p.points);
 
     if (player != null && player.id == p.id) {
         player = p;
         player.cards = Utils.createCards(ply.cards);
     }
 
-    if (player.id != ply.id || stage > 2) {
+    if ((player != null && player.id != ply.id) || stage > 2) {
         updatePlayer(p, true);
     }
 });
@@ -141,7 +140,6 @@ socket.on("add-cards", function(cards: Card[], fault: string) {
 
 socket.on("update-card-count", function (counts: number[]) {
     cardCounts = counts;
-    console.log("Update card count", cardCounts);
     renderCardCounts();
 });
 
@@ -167,10 +165,9 @@ socket.on("end-game", function (winner: Player) {
     setStage(4);
 });
 
-socket.on("end-round", function (winner: Player) {
+socket.on("end-round", function (winner: Player, winPoints: number) {
     nameEditable = false;
-    console.log(winner.name, winner.points);
-    showRoundEndModal(winner);
+    showRoundEndModal(winner, winPoints);
 });
 
 $(function() {
@@ -384,6 +381,7 @@ function updatePlayer(p: Player, animate: boolean) {
 
         if (player.id == p.id) {
             renderCards();
+            validateCards();
         }
     }
 }
@@ -461,9 +459,9 @@ function setPage(p: number) {
     }
 }
 
-function setRound(r: number){
+function setRound(r: number) {
     round = r;
-    $("#round").val(`Round: ${round}`);
+    $("#round").html(`Round: ${round}`);
 }
 
 function validateCard(card: Card): boolean {
@@ -576,14 +574,14 @@ function showNewCardsModal(cards: Card[], fault: string) {
     });
 }
 
-function showRoundEndModal(winner: Player) {
+function showRoundEndModal(winner: Player, winPoints: number) {
     let modal = $("#round-end-modal");
     let content = $("#round-end-content");
 
     if (winner.id == player.id) {
         content.html(`<h3>Ganaste la ronda</h3><h5>${winner.points} puntos</h5>`);
     } else {
-        content.html(`<h3>${winner.name} ganó la ronda</h3><h5>${winner.points} puntos</h5>`);
+        content.html(`<h3>${winner.name} ganó la ronda</h3><h5>${winPoints} puntos</h5>`);
     }
 
     modal.modal("show");
@@ -599,7 +597,7 @@ function configureRoundEndModal() {
 
     modal.on("hide.bs.modal", function () {
         setStage(2);
-        setRound(round+1);
+        setRound(round + 1);
     });
 }
 
