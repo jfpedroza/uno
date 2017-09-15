@@ -196,6 +196,7 @@ io.on("connection", function(socket) {
         let card = getCardFromDeck();
         getPlayer(player.id).add(card);
         sockets[player.id].emit("add-cards", [ card]);
+        io.sockets.emit("update-card-count", Utils.getCardCount(players));
 
         let notif: UnoNotification = {
             title: "Carta del mazo",
@@ -225,6 +226,7 @@ io.on("connection", function(socket) {
             let cards = getCardsFromDeck(2);
             player.addArray(cards);
             socket.emit("add-cards", cards, "no tienes solo una carta");
+            io.sockets.emit("update-card-count", Utils.getCardCount(players));
             notif.message += ". Fue penalizado por no tener solo una carta.";
         } else {
             player.saidUno = true;
@@ -235,6 +237,38 @@ io.on("connection", function(socket) {
                 sockets[p.id].emit("show-notification", notif);
             }
         });
+    });
+
+    socket.on("didnt-say-uno", function (player: Player) {
+        player = getPlayer(player.id);
+        let fault = true;
+        players.forEach(p => {
+           if (p.cards.length == 1 && !p.saidUno) {
+               fault = false;
+               didntSayUno(p);
+               return false;
+           }
+        });
+
+        if (fault) {
+            let cards = getCardsFromDeck(2);
+            player.addArray(cards);
+            socket.emit("add-cards", cards, "no hay nadie sin decir uno");
+            io.sockets.emit("update-card-count", Utils.getCardCount(players));
+
+            let notif: UnoNotification = {
+                title: "Alguien tiene nuevas cartas",
+                message: `<b>${player.name}</b> tiene 2 nuevas cartas porque no hay nadie sin decir uno`,
+                type: NotificationTypes.Info,
+                position: NotifPositions.BottomLeft
+            };
+
+            players.forEach(p => {
+                if (p.id != player.id) {
+                    sockets[p.id].emit("show-notification", notif);
+                }
+            });
+        }
     });
 });
 
@@ -297,4 +331,24 @@ function getCardsFromDeck(amount: number): Card[] {
     } else {
         return deck.popAmount(amount);
     }
+}
+
+function didntSayUno(player: Player) {
+    let cards = getCardsFromDeck(2);
+    player.addArray(cards);
+    sockets[player.id].emit("add-cards", cards, "no dijiste uno");
+    io.sockets.emit("update-card-count", Utils.getCardCount(players));
+
+    let notif: UnoNotification = {
+        title: "Alguien tiene nuevas cartas",
+        message: `<b>${player.name}</b> tiene 2 nuevas cartas por no decir uno`,
+        type: NotificationTypes.Info,
+        position: NotifPositions.BottomLeft
+    };
+
+    players.forEach(p => {
+        if (p.id != player.id) {
+            sockets[p.id].emit("show-notification", notif);
+        }
+    });
 }

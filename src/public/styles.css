@@ -120,22 +120,26 @@ body {
     margin-left: 25px;
 }
 
-#uno-btn {
+#uno-no-container {
     display: inline-block;
     margin-left: 20px;
+}
+
+#uno-btn, #no-btn {
+    margin-left: 1px;
     margin-top: 1px;
 }
 
-#uno-btn:hover {
-    margin-left: 19px;
+#uno-btn:hover, #no-btn:hover {
+    margin-left: 0;
     margin-top: 0;
 }
 
-#uno-btn img {
+#uno-btn img, #no-btn img {
     width: 96px;
 }
 
-#uno-btn img:hover {
+#uno-btn img:hover, #no-btn img:hover {
     width: 98px;
     cursor: pointer;
 }

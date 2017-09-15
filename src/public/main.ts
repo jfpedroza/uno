@@ -166,6 +166,7 @@ $(function() {
     selectColorClick();
     btnPickFromDeckClick();
     btnUnoClick();
+    btnNoClick();
     setStage(1);
 });
 
@@ -262,6 +263,12 @@ function btnPickFromDeckClick() {
 function btnUnoClick() {
     $("#uno-btn").click(function () {
         socket.emit("say-uno", player);
+    });
+}
+
+function btnNoClick() {
+    $("#no-btn").click(function () {
+        socket.emit("didnt-say-uno", player);
     });
 }
 
