@@ -156,7 +156,7 @@ io.on("connection", function(socket) {
         socket.emit("update-player", currentPlayer);
         io.sockets.emit("update-card-count", Utils.getCardCount(players));
 
-        if (currentPlayer.cards.length > 5) {
+        if (currentPlayer.cards.length > 0) {
 
             if (currentCard.type == CardType.PlusFour || currentCard.type == CardType.PlusTwo) {
                 let amount = 2;
@@ -313,6 +313,9 @@ io.on("connection", function(socket) {
     socket.on("stage-2-ready", function (player: Player) {
         player = getPlayer(player.id);
         player.ready = true;
+        if (winner != null) {
+            socket.emit("update-player", winner);
+        }
     });
 
     socket.on("log-out", function (player: Player) {

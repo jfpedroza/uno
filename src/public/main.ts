@@ -50,7 +50,8 @@ socket.on("update-player", function (ply: Player) {
         player.cards = Utils.createCards(ply.cards);
     }
 
-    if ((player != null && player.id != ply.id) || stage > 2) {
+    if (player != null && stage >= 2) {
+        console.log("updating player", p);
         updatePlayer(p, true);
     }
 });
@@ -132,7 +133,8 @@ socket.on("add-cards", function(cards: Card[], fault: string) {
     validateCards();
 
     if (currentPlayer.id == player.id && cards.length == 1) {
-        if (!validateCard(cards[0])) {
+        let anyValid = player.cards.some(c => validateCard(c));
+        if (!anyValid) {
             socket.emit("turn-ended", player);
         }
     }
@@ -364,11 +366,15 @@ function renderPlayers() {
 
             if (player.id == p.id && nameEditable) {
                 table.append(`<tr id="player-stg2-${p.id}">
-                                <td><input value="${p.name}" class="input" id="player-name" autofocus></td>
+                                <td class="player-name"><input value="${p.name}" class="input" id="player-name" autofocus></td>
+                                <td class="player-points">${p.points}</td>
                                 <td><button class="button" id="btn-set">Set</button></td>
                               </tr>`);
             } else {
-                table.append(`<tr id="player-stg2-${p.id}"><td>${p.name}</td></tr>`);
+                table.append(`<tr id="player-stg2-${p.id}">
+                                <td class="player-name">${p.name}</td>
+                                <td class="player-points">${p.points}</td>
+                              </tr>`);
             }
         });
     } else if (stage == 3) {
@@ -393,7 +399,15 @@ function renderPlayers() {
 
 function updatePlayer(p: Player, animate: boolean) {
     if (stage == 2) {
-        $(`#player-stg2-${p.id}`).html(`<td>${p.name}</td>`);
+        if (player.id != p.id) {
+            $(`#player-stg2-${p.id} .player-name`).html(`${p.name}`);
+        }
+
+        if (animate) {
+            animateNumber($(`#player-stg2-${p.id} .player-points`), p.points, 300);
+        } else {
+            $(`#player-stg2-${p.id} .player-points`).html(`${p.points}`);
+        }
     } else if (stage == 3) {
         let id = `#player-${p.id}`;
         if (player.id == p.id) {
@@ -537,6 +551,7 @@ function animateNumber(el: any, newValue: number, time: number) {
     const value = parseInt(el.text());
     let duration = (newValue - value) * time;
     if (duration < 0) duration = -duration;
+    if (duration > 2000) duration = 2000;
 
     el.prop('Counter', value).animate({
         Counter: newValue
@@ -605,7 +620,7 @@ function showRoundEndModal(winner: Player, winPoints: number) {
     let content = $("#round-end-content");
 
     if (winner.id == player.id) {
-        content.html(`<h3>Ganaste la ronda</h3><h5>${winner.points} puntos</h5>`);
+        content.html(`<h3>Ganaste la ronda</h3><h5>${winPoints} puntos</h5>`);
     } else {
         content.html(`<h3>${winner.name} ganó la ronda</h3><h5>${winPoints} puntos</h5>`);
     }
