@@ -40,7 +40,7 @@ let gameStarted = false;
 let round = 1;
 
 io.on("connection", function(socket) {
-    console.log("A new player has connected");
+    console.log("A new client has connected");
 
     socket.on("restart", function () {
         players = [];
@@ -53,7 +53,7 @@ io.on("connection", function(socket) {
 
     socket.on("new-player", function (player: Player) {
         if (!gameStarted) {
-            console.log("New player: ", player);
+            console.log(`New player ID: ${player.id}`);
             players.push(new Player(player.id, player.name));
             sockets[player.id] = socket;
             io.sockets.emit("players", players);
@@ -318,7 +318,9 @@ io.on("connection", function(socket) {
     socket.on("log-out", function (player: Player) {
         player = getPlayer(player.id);
 
+        let next = getNextPlayer(false);
         players.splice(players.indexOf(player), 1);
+
         if (players.length > 1) {
             sockets[player.id].disconnect(true);
             players.forEach(p => {
@@ -327,7 +329,7 @@ io.on("connection", function(socket) {
             });
 
             if (player.id == currentPlayer.id) {
-                currentPlayer = getNextPlayer(false);
+                currentPlayer = next;
                 io.sockets.emit("set-current-player", currentPlayer);
             }
         } else {

@@ -180,8 +180,10 @@ socket.on("logged-out", function (ply: Player) {
     };
 
     showNotification(notif);
-    players.slice(players.indexOf(ply), 1);
+
+    players.splice(players.indexOf(ply), 1);
     renderPlayers();
+    setCurrentPlayer(currentPlayer);
 });
 
 $(function() {
