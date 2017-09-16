@@ -103,13 +103,9 @@ export class ServerGame implements Game {
 
             this.players.forEach(p => {
                 p.cards = [];
-                console.log("1");
                 p.addArray(this.deck.popAmount(Constants.initialCards));
-                console.log("2");
                 this.emit(p, "start-game", p, this.currentCard, this.currentColor, this.direction, this.round);
-                console.log("3");
             });
-            console.log("11");
         } else {
             let notif: UnoNotification = {
                 title: "No se pudo iniciar el juego",
