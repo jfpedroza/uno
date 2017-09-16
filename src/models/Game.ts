@@ -2,6 +2,10 @@ import {Player} from "./Player";
 import {Card} from "./Card";
 import {Color} from "./Color";
 
+/**
+ * La clase Game representa una interfaz común entre el cliente y el servidor
+ * @interface Game
+ */
 export interface Game {
     players: Player[];
     currentPlayer: Player;
