@@ -46,13 +46,4 @@ export class Utils {
             return true;
         }
     }
-
-    public static getCardCount(players: Player[]) {
-        let array: any = {};
-        players.forEach(p => {
-            array[p.id] = p.cards.length;
-        });
-
-        return array;
-    }
 }
