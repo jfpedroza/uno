@@ -1,3 +1,7 @@
+/**
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
+
 import {ActionCard} from "./ActionCard";
 import {Colors} from "./Color";
 import {CardType} from "./Card";

@@ -1,3 +1,7 @@
+/**
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
+
 import {Player} from "./models/Player";
 import {Deck} from "./models/Deck";
 import {Card, CardType} from "./models/Card";

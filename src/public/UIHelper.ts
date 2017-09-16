@@ -1,3 +1,7 @@
+/**
+ * @author Kevin Serrano <kevinjsa2708@gmail.com>
+ */
+
 import {ClientGame} from "./ClientGame";
 import {Player} from "../models/Player";
 import {NotifPositions, UnoNotification} from "../models/Notification";

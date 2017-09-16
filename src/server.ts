@@ -1,4 +1,7 @@
-
+/**
+ * Punto de entrada del servidor, escucha todos los mensajes de los clientes.
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
 
 import * as express from "express";
 import * as http from "http";
@@ -27,12 +30,12 @@ io.on("connection", function(socket) {
 
     socket.on("restart", function () {
         game = new ServerGame(io);
-        io.sockets.emit("restart");
+        game.emitAll("restart");
     });
 
     socket.on("new-player", function (player: Player) {
         if (game.newPlayer(player, socket)) {
-            io.sockets.emit("players", game.players);
+            game.emitAll("players", game.players);
         } else {
             socket.emit("game-already-started");
         }

@@ -1,3 +1,7 @@
+/**
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
+
 var shell = require('shelljs');
 
 shell.mkdir('/dist/');
