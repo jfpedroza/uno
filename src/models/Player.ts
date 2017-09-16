@@ -1,7 +1,7 @@
 import {Card} from "./Card";
 
 /**
- * Clase Player, clase principal del jugador define las propiedades del mismo.
+ * Clase Player, clase principal del jugador, define las propiedades del mismo.
  *
  * @class Player
  */
