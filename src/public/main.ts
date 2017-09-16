@@ -1,6 +1,11 @@
 /// <reference path="../../node_modules/@types/jquery/index.d.ts" />
 /// <reference path="../../node_modules/@types/socket.io-client/index.d.ts" />
 
+/**
+ * Punto de entrada del cliente, escucha todos los mensajes del servidor.
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
+
 import {Player} from "../models/Player";
 import {Card, CardType} from "../models/Card";
 import {Color, Colors} from "../models/Color";

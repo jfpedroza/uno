@@ -1,3 +1,7 @@
+/**
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
+
 import {Player} from "./Player";
 import {Card} from "./Card";
 import {Color} from "./Color";
@@ -126,7 +130,7 @@ export namespace Constants {
      * @const minPlayer
      * @type {number}
      */
-    export const minPlayers = 2;
+    export const minPlayers: number = 2;
 
     /**
      * Representa el máximo de jugadores del juego
@@ -134,7 +138,7 @@ export namespace Constants {
      * @const maxPlayers
      * @type {number}
      */
-    export const maxPlayers = 4;
+    export const maxPlayers: number = 4;
 
     /**
      * Representa la cantidad de cartas con las que inicia un jugador
@@ -142,7 +146,7 @@ export namespace Constants {
      * @const initialCards
      * @type {number}
      */
-    export const initialCards = 7;
+    export const initialCards: number = 7;
 
     /**
      * Representa el mínimo de jugadores del juego
@@ -150,5 +154,5 @@ export namespace Constants {
      * @const pageSize
      * @type {number}
      */
-    export const pageSize = 7;
+    export const pageSize: number = 7;
 }

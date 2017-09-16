@@ -1,4 +1,8 @@
 /**
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
+
+/**
  * Interface Color define metodos y propiedades del objeto Color.
  *
  * @interface Color

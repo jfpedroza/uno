@@ -1,4 +1,8 @@
 /**
+ * @author Kevin Serrano <kevinjsa2708@gmail.com>
+ */
+
+/**
  * Interface UnoNotification define metodos y propiedades de las notificaciones a implementar.
  *
  * @interface UnoNotification

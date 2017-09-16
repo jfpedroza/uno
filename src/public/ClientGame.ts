@@ -1,3 +1,7 @@
+/**
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+*/
+
 import {Constants, Game} from "../models/Game";
 import {Color} from "../models/Color";
 import {Card, CardType} from "../models/Card";

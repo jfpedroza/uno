@@ -1,3 +1,7 @@
+/**
+ * @author Kevin Serrano <kevinjsa2708@gmail.com>
+ */
+
 import {Card, CardType} from "./Card";
 import {NumericCard} from "./NumericCard";
 import {ColorChangeCard} from "./ColorChangeCard";
