@@ -9,16 +9,49 @@ import {Utils} from "../models/Utils";
 import {NotificationTypes, NotifPositions, UnoNotification} from "../models/Notification";
 import {UIHelper} from "./UIHelper";
 
+/**
+ * La clase ClientGame representa el juego del lado del cliente
+ * @class ClientGame
+ * @implements Game
+ */
 export class ClientGame implements Game {
 
     public socket: Socket;
+
+    /**
+     * @inheritDoc
+     */
     public players: Player[] = [];
     public player: Player;
+
+    /**
+     * @inheritDoc
+     */
     public currentPlayer: Player;
+
+    /**
+     * @inheritDoc
+     */
     public winner: Player;
+
+    /**
+     * @inheritDoc
+     */
     public currentCard: Card;
+
+    /**
+     * @inheritDoc
+     */
     public currentColor: Color;
+
+    /**
+     * @inheritDoc
+     */
     public direction: boolean = true;
+
+    /**
+     * @inheritDoc
+     */
     public round: number = 1;
     public stage: number = 1;
     public page: number = 1;

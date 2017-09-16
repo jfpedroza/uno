@@ -7,18 +7,66 @@ import {Utils} from "./models/Utils";
 import {NotificationTypes, NotifPositions, UnoNotification} from "./models/Notification";
 import {Constants, Game} from "./models/Game";
 
+/**
+ * La clase ServerGame representa el juego del lado del servidor
+ * @class ServerGame
+ * @implements Game
+ */
 export class ServerGame implements Game {
 
+    /**
+     * @inheritDoc
+     */
     public players: Player[];
+
+    /**
+     * @inheritDoc
+     */
     public currentPlayer: Player;
+
+    /**
+     * @inheritDoc
+     */
     public winner: Player;
+
+    /**
+     *
+     */
     public deck: Deck;
+
+    /**
+     *
+     */
     public auxDeck: Deck;
+
+    /**
+     * @inheritDoc
+     */
     public currentCard: Card;
+
+    /**
+     * @inheritDoc
+     */
     public currentColor: Color;
+
+    /**
+     * @inheritDoc
+     */
     public direction: boolean;
+
+    /**
+     *
+     */
     public sockets: Array<Socket>;
+
+    /**
+     *
+     */
     public gameStarted: boolean;
+
+    /**
+     * @inheritDoc
+     */
     public round: number;
 
     public constructor(public io: SocketIO.Server) {
@@ -46,6 +94,9 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public getPlayer(id: number): Player {
         const result = this.players.filter(p => p.id == id);
         if (result.length > 0) {
@@ -57,7 +108,7 @@ export class ServerGame implements Game {
 
     public getNextPlayer(shouldSkip: boolean): Player {
         let dif = 1;
-        if (this.currentCard.type == CardType.Skip && shouldSkip) {
+        if ((this.currentCard.type == CardType.Skip || this.currentCard.type == CardType.PlusTwo) && shouldSkip) {
             dif = 2;
         }
 
