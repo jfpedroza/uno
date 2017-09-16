@@ -7,9 +7,16 @@ import {CardType} from "./Card";
  *
  * @class SkipCard
  * @extends ActionCard
- * @property type {CardType}
  */
 export class SkipCard extends ActionCard {
+
+    /**
+     * La propiedad type representa el tipo de la carta la cuenta es una carta de acción y con la propiedad salto de turno.
+     *
+     * @property type
+     * @type {CardType}
+     * @readonly
+     */
     readonly type = CardType.Skip;
 
     /**

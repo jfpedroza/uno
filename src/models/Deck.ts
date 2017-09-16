@@ -12,9 +12,14 @@ import {NumericCard} from "./NumericCard";
  * Clase Deck, clase principal del mazo de las cartas.
  *
  * @class Deck
- * @property cards {Cards} Instancia de Cards.
  */
 export class Deck {
+
+    /**
+     * @property cards
+     * @type {Card[]}
+     * @readonly
+     */
     readonly cards: Card[];
 
     /**

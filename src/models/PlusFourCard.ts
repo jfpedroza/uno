@@ -7,9 +7,16 @@ import {CardType} from "./Card";
  *
  * @class PlusFourCard
  * @extends ActionCard
- * @property type {CardType}
  */
 export class PlusFourCard extends ActionCard {
+
+    /**
+     * La propiedad type representa el tipo de la carta la cuenta es una carta de acción y con la propiedad +4.
+     *
+     * @property type
+     * @type {CardType}
+     * @readonly
+     */
     readonly type = CardType.PlusFour;
 
     /**

@@ -7,9 +7,16 @@ import {CardType} from "./Card";
  *
  * @class ReturnCard
  * @extends ActionCard
- * @property type {CardType}
  */
 export class ReturnCard extends ActionCard {
+
+    /**
+     * La propiedad type representa el tipo de la carta la cuenta es una carta de acción y con la propiedad cambio de sentido.
+     *
+     * @property type
+     * @type {CardType}
+     * @readonly
+     */
     readonly type = CardType.Return;
 
     /**

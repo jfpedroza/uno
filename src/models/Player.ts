@@ -4,15 +4,39 @@ import {Card} from "./Card";
  * Clase Player, clase principal del jugador define las propiedades del mismo.
  *
  * @class Player
- * @property cards {Card}
- * @property points {number}
- * @property saidUno {boolean}
- * @property ready {boolean}
  */
 export class Player {
+
+    /**
+     * La propiedad cards representa el vector de cartas del jugador.
+     *
+     * @property cards
+     * @type {Card[]}
+     */
     cards: Card[];
+
+    /**
+     * La propiedad points representa el numero de puntos del jugador.
+     *
+     * @property points
+     * @type {number}
+     */
     points: number;
+
+    /**
+     * La propiedad saidUno representa el true/false del estado "dijo uno" del jugador.
+     *
+     * @property saidUno
+     * @type {boolean}
+     */
     saidUno: boolean;
+
+    /**
+     * La propiedad ready representa el estado del jugador, si está o no listo para jugar.
+     *
+     * @property ready
+     * @type {boolean}
+     */
     ready: boolean;
 
     /**

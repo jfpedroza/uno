@@ -6,11 +6,25 @@ import {Color} from "./Color";
  *
  * @class NumericCard
  * @implements Card
- * @property points {number}
- * @property type {CardType.Numeric} Instacia de CardType.
  */
 export class NumericCard implements Card {
+
+    /**
+     * La propiedad points representa los puntos de la carta numerica. Estos corresponden al numero de la carta.
+     *
+     * @property points
+     * @type {number}
+     * @readonly
+     */
     readonly points: number;
+
+    /**
+     * La propiedad type representa el tipo de la carta numerica. Esta corresponden a una carta numerica.
+     *
+     * @property type
+     * @type {CardType}
+     * @readonly
+     */
     readonly type = CardType.Numeric;
 
     /**
