@@ -20,6 +20,8 @@ import {NumericCard} from "./NumericCard";
 export class Deck {
 
     /**
+     * Representa la cartas que hay en el mazo.
+     *
      * @property cards
      * @type {Card[]}
      * @readonly
@@ -73,8 +75,7 @@ export class Deck {
     /**
      * Metodo get Size retorna el tamaño del array Cards.
      *
-     * @method size
-     * @type get
+     * @property size
      * @return {number} Retorna el tamaño del Array Cards.
      * @public
      */
@@ -93,10 +94,10 @@ export class Deck {
     }
 
     /**
-     * Metodo Pop retorna un objeto de tipo Card.
+     * Metodo Pop saca una carta del mazo y la retorna.
      *
      * @method pop
-     * @return {Card} Retorna un objeto de tipo Card.
+     * @return {Card} Carta sacada del mazo.
      * @public
      */
     public pop(): Card {
@@ -104,10 +105,10 @@ export class Deck {
     }
 
     /**
-     * Metodo popAmount recibe la cantidad de cartas a sacar del array de Cards.
+     * Metodo popAmount recibe la cantidad de cartas a sacar del array de Cards y las retorna.
      *
      * @method popAmount
-     * @param {number} amount
+     * @param {number} amount El número de cartas a sacar.
      * @return {Card[]} Retorna un numero de objetos de tipo Card según el parametro.
      * @public
      */
@@ -119,7 +120,7 @@ export class Deck {
      * Metodo Push recibe el objeto Card y lo agrega al Array de Cards.
      *
      * @method push
-     * @param {Card} card
+     * @param {Card} card La carta a agregar.
      * @public
      */
     public push(card: Card): void {
@@ -130,7 +131,7 @@ export class Deck {
      * Metodo putFirst recibe un objeto Card y lo agregar al principio del Array de Cards.
      *
      * @method putFirst
-     * @param {Card} card
+     * @param {Card} card La carta a agregar.
      * @public
      */
     public putFirst(card: Card): void {

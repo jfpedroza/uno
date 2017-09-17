@@ -75,7 +75,7 @@ export interface Game {
     /**
      * La función getPlayer recibe una id de jugador y devuelve un objeto de tipo Player.
      *
-     * @param {number} id
+     * @param {number} id Id del jugador
      * @returns {Player}
      */
     getPlayer(id: number): Player;
@@ -83,14 +83,14 @@ export interface Game {
     /**
      * La función updatePlayer actualiza un jugador determinado en el array de jugadores.
      *
-     * @param {Player} player
+     * @param {Player} player Jugador a actualizar
      */
     updatePlayer(player: Player): void;
 
     /**
      * La función selectCard selecciona la carta especificada como carta actual y la elimina de las cartas del jugador.
      *
-     * @param {Card} card
+     * @param {Card} card Carta a seleccionar
      */
     selectCard(card: Card): void;
 

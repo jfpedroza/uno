@@ -15,11 +15,7 @@ import {CardType} from "./Card";
 export class PlusFourCard extends ActionCard {
 
     /**
-     * La propiedad type representa el tipo de la carta la cuenta es una carta de acción y con la propiedad +4.
-     *
-     * @property type
-     * @type {CardType}
-     * @readonly
+     * @inheritDoc
      */
     readonly type = CardType.PlusFour;
 
@@ -31,11 +27,8 @@ export class PlusFourCard extends ActionCard {
     }
 
     /**
-     * Funcion getName retonar el nombre de la carta.
-     *
-     * @function getName
-     * @return {string} Retorna el nombre de la carta.
-     * @public
+     * @inheritDoc
+     * @override
      */
     getName(): string {
         return `${this.code}`;

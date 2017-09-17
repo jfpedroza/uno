@@ -460,8 +460,6 @@ export class ServerGame implements Game {
         let newPoints = 0;
         this.players.forEach(p => {
             if (p.id != this.winner.id) {
-                let points = this.winner.points;
-                let cardPoints = p.getCardPoints();
                 newPoints += p.getCardPoints();
             }
         });
@@ -604,7 +602,7 @@ export class ServerGame implements Game {
     public emitAllBut(player: Player, event: string, ... args: any[]) {
         this.players.forEach(p => {
             if (p.id != player.id) {
-                this.emit(p, event, args);
+                this.emit(p, event, ... args);
             }
         });
     }

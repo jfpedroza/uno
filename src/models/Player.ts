@@ -24,24 +24,27 @@ export class Player {
      *
      * @property points
      * @type {number}
+     * @default 0
      */
-    points: number;
+    points: number = 0;
 
     /**
      * La propiedad saidUno representa el true/false del estado "dijo uno" del jugador.
      *
      * @property saidUno
      * @type {boolean}
+     * @default false
      */
-    saidUno: boolean;
+    saidUno: boolean = false;
 
     /**
      * La propiedad ready representa el estado del jugador, si está o no listo para jugar.
      *
      * @property ready
      * @type {boolean}
+     * @default false
      */
-    ready: boolean;
+    ready: boolean = false;
 
     /**
      * @constructor
@@ -50,16 +53,13 @@ export class Player {
      */
     constructor(public readonly id: number, public name: string) {
         this.cards = [];
-        this.points = 0;
-        this.saidUno = false;
-        this.ready = false;
     }
 
     /**
      * Metodo add, agregar una carta al array del cartas del jugardor.
      *
      * @method add
-     * @param {Card} newCard
+     * @param {Card} newCard Nueva carta a agregar.
      * @public
      */
     public add(newCard: Card): void {
@@ -73,7 +73,7 @@ export class Player {
      * Metodo addArray, agregar un array de cartas al array de cartas del jugador.
      *
      * @method addArray
-     * @param {Card[]} newCards
+     * @param {Card[]} newCards Nuevas cartas a agregar.
      * @public
      */
     public addArray(newCards: Card[]): void {
@@ -87,7 +87,7 @@ export class Player {
      * Metodo getCardPoints retorna los puntos de las cartas del array de cartas del jugador.
      *
      * @method getCardPoints
-     * @return {number} Retorna los puntos por cada carta.
+     * @return {number} Número de puntos totales en las cartas del jugador.
      * @public
      */
     public getCardPoints(): number {

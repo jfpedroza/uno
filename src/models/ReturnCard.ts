@@ -15,27 +15,21 @@ import {CardType} from "./Card";
 export class ReturnCard extends ActionCard {
 
     /**
-     * La propiedad type representa el tipo de la carta la cuenta es una carta de acción y con la propiedad cambio de sentido.
-     *
-     * @property type
-     * @type {CardType}
-     * @readonly
+     * @inheritDoc
      */
     readonly type = CardType.Return;
 
     /**
      * @constructor
-     * @param {Color} color
+     * @param {Color} color Color de la carta
      */
-    constructor(public readonly color: Color) {
+    constructor(color: Color) {
         super("R", color, 20);
     }
 
     /**
-     * Funcion getName retorna el nombre y el color de la carta.
-     *
-     * @function getName
-     * @return {string} Retorna el nombre de la carta.
+     * @inheritDoc
+     * @override
      */
     getName(): string {
         return `Cambio de sentido ${this.color.name}`;

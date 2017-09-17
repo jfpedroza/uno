@@ -2,13 +2,12 @@
  * @author Jhon Pedroza <jhonfpedroza@gmail.com>
 */
 
-import {Constants, Game} from "../models/Game";
+import {Game} from "../models/Game";
 import {Color} from "../models/Color";
 import {Card, CardType} from "../models/Card";
 import {Player} from "../models/Player";
 import Socket = SocketIOClient.Socket;
 import {NumericCard} from "../models/NumericCard";
-import pageSize = Constants.pageSize;
 import {Utils} from "../models/Utils";
 import {NotificationTypes, NotifPositions, UnoNotification} from "../models/Notification";
 import {UIHelper} from "./UIHelper";
@@ -31,103 +30,66 @@ export class ClientGame implements Game {
     public socket: Socket;
 
     /**
-     * La propiedad players representa el array de los jugadores en juego.
-     *
      * @inheritDoc
-     * @type Player
      */
     public players: Player[] = [];
 
     /**
-     * La propiedad player representa el jugador en juego.
-     *
      * @inheritDoc
-     * @type Player
      */
     public player: Player;
 
     /**
-     * La propiedad currentPlayer representa el jugador en turno.
-     *
      * @inheritDoc
-     * @type Player
      */
     public currentPlayer: Player;
 
     /**
-     * La propiedad winner representa al jugador ganador.
-     *
      * @inheritDoc
-     * @type Player
      */
     public winner: Player;
 
     /**
-     * La propiedad currentCard representa la carta en juego.
-     *
      * @inheritDoc
-     * @type Card
      */
     public currentCard: Card;
 
     /**
-     * La propiedad currentColor representa el color en juego.
-     *
      * @inheritDoc
-     * @type Color
      */
     public currentColor: Color;
 
     /**
-     * La propiedad direction representa la direccion del juego.
-     *
      * @inheritDoc
-     * @type {boolean}
+     * @default true
      */
     public direction: boolean = true;
 
     /**
-     * La propiedad round representa la ronda de juego en la que está, tiene valor por defecto 1.
-     *
      * @inheritDoc
      * @default 1
      */
     public round: number = 1;
 
     /**
-     * @property stage
-     * @type {number}
-     * @default 1
-     */
-    public stage: number = 1;
-
-    /**
-     * @property page
-     * @type {number}
-     * @default 1
-     */
-    public page: number = 1;
-
-    /**
+     * Objeto que almacena la cantidad de cartas de los jugadores. Las propiedades son las ids de los jugadores.
+     *
      * @property cardCounts
      * @type any
      */
     public cardCounts: any;
 
     /**
-     * @property nameEditable
-     * @type {boolean}
-     * @default true
-     */
-    public nameEditable = true;
-
-    /**
+     * Representa la UI del juego.
+     *
      * @property ui
      * @type {UIHelper}
      */
     public ui: UIHelper;
 
     /**
+     * Instancia única del juego.
+     *
      * @property instance
      * @type {ClientGame}
      */
@@ -135,7 +97,7 @@ export class ClientGame implements Game {
 
     /**
      * @constructor
-     * @param {SocketIOClient.Socket} socket
+     * @param {SocketIOClient.Socket} socket Socket conectado al servidor.
      */
     public constructor(socket: Socket) {
         this.socket = socket;
@@ -174,11 +136,11 @@ export class ClientGame implements Game {
      * El metodo startGame recibe el jugador, las cartas, el color, la dirección y la ronda para iniciar el juego.
      *
      * @method stratGame
-     * @param {Player} ply
-     * @param {Card} currentCard
-     * @param {Color} currentColor
-     * @param {boolean} direction
-     * @param {number} round
+     * @param {Player} ply Mi jugador.
+     * @param {Card} currentCard Carta actual inicial.
+     * @param {Color} currentColor Color inicial.
+     * @param {boolean} direction Dirección inicial.
+     * @param {number} round Ronda inicial.
      * @public
      */
     public startGame(ply: Player, currentCard: Card, currentColor: Color, direction: boolean, round: number) {
@@ -191,11 +153,7 @@ export class ClientGame implements Game {
     }
 
     /**
-     * El metodo getPlayer recibe como parametro el id del jugador y lo filtra del array de jugadores.
-     *
-     * @method getPlayer
-     * @param {number} id
-     * @return {Player}
+     * @inheritDoc
      * @public
      */
     public getPlayer(id: number): Player {
@@ -208,10 +166,7 @@ export class ClientGame implements Game {
     }
 
     /**
-     * El metodo updatePlayer recibe el jugador para actializarlo.
-     *
-     * @method updatePlayer
-     * @param {Player} ply
+     * @inheritDoc
      * @public
      */
     public updatePlayer(ply: Player) {
@@ -228,8 +183,7 @@ export class ClientGame implements Game {
             this.player.cards = Utils.createCards(ply.cards);
         }
 
-        if (this.player != null && this.stage >= 2) {
-            console.log("updating player", p);
+        if (this.player != null && this.ui.stage >= 2) {
             this.ui.updatePlayer(p, true);
         }
     }
@@ -238,7 +192,7 @@ export class ClientGame implements Game {
      * El metodo setPlayerName recibe como parametro el nombre que desea actualizar y envia el mensaje al servidor para que sea enviado a los demas clientes.
      *
      * @method setPlayerName
-     * @param {string} name
+     * @param {string} name Nuevo nombre del jugador.
      * @public
      */
     public setPlayerName(name: string) {
@@ -247,10 +201,10 @@ export class ClientGame implements Game {
     }
 
     /**
-     * El metodo setCurrentPlayer recibe como parametro el jugador y activa al jugador.
+     * El metodo setCurrentPlayer recibe como parametro un jugador lo establece como el actual.
      *
      * @method setCurrentPlayer
-     * @param {Player} current
+     * @param {Player} current Nuevo jugador actual.
      * @public
      */
     public setCurrentPlayer(current: Player) {
@@ -278,14 +232,14 @@ export class ClientGame implements Game {
             position: NotifPositions.BottomLeft
         };
 
-        this.ui.showNotification(notif);
+        UIHelper.showNotification(notif);
     }
 
     /**
      * El metodo setDirection recibe como paramtro el bool de la dirección y llama al metodo renderDirection para dibujar la dirección.
      *
      * @method setDirection
-     * @param {boolean} dir
+     * @param {boolean} dir Nueva dirección.
      * @public
      */
     public setDirection(dir: boolean) {
@@ -298,7 +252,7 @@ export class ClientGame implements Game {
      * Además, si el tipo de carta el amerita una selección de color abre el modal de selección de color.
      *
      * @method selectCard
-     * @param {Card} card
+     * @param {Card} card Carta a seleccionar.
      * @public
      */
     public selectCard(card: Card) {
@@ -313,8 +267,8 @@ export class ClientGame implements Game {
      * El metodo setCurrentCard cambia la carta actual por la seleccionada por el jugador.
      *
      * @method setCurrentCard
-     * @param {Card} card
-     * @param {Player} ply
+     * @param {Card} card Nueva carta actual.
+     * @param {Player} ply Jugador que la cambió.
      * @public
      */
     public setCurrentCard(card: Card, ply: Player) {
@@ -334,7 +288,7 @@ export class ClientGame implements Game {
                 position: NotifPositions.BottomLeft
             };
 
-            this.ui.showNotification(notif);
+            UIHelper.showNotification(notif);
         }
         this.ui.setCurrentCard();
     }
@@ -343,8 +297,8 @@ export class ClientGame implements Game {
      * El metod setCurrentColor cambia el color actual por el de la carta que puso el jugador en turno.
      *
      * @method setCurrentColor
-     * @param {Color} color
-     * @param {Player} ply
+     * @param {Color} color Nuevo color.
+     * @param {Player} ply Jugador que cambió el color.
      * @public
      */
     public setCurrentColor(color: Color, ply: Player) {
@@ -360,7 +314,7 @@ export class ClientGame implements Game {
                 position: NotifPositions.BottomLeft
             };
 
-            this.ui.showNotification(notif);
+            UIHelper.showNotification(notif);
         }
     }
 
@@ -395,41 +349,7 @@ export class ClientGame implements Game {
     }
 
     /**
-     * El metodo setStage habilita el stage del juego en el que se esté.
-     *
-     * @method setStage
-     * @param {number} stage
-     * @public
-     */
-    public setStage(stage: number) {
-        this.ui.setStage(this.stage, stage);
-        this.stage = stage;
-    }
-
-    /**
-     * El metodo onStageChange dibujo lo referente para cada una de las Stage.
-     *
-     * @method onStageChange
-     * @public
-     */
-    public onStageChange() {
-        let game = ClientGame.instance;
-        if (game.stage == 2) {
-            game.renderPlayers();
-        }
-        else if (game.stage == 3) {
-            game.ui.setCurrentCard();
-            game.ui.setCurrentColor();
-            game.renderPlayers();
-            game.ui.renderCards();
-            game.ui.renderDirection();
-        }
-
-        game.socket.emit("stage-ready", game.player, game.stage);
-    }
-
-    /**
-     * El metodo validateCard recibe la carta a validar y retorna true/false dependiendo si puede o no jugar la carga que tomó del mazo.
+     * El metodo validateCard recibe la carta a validar y retorna true/false dependiendo si puede o no jugar la carta.
      *
      * @method validateCard
      * @param {Card} card
@@ -454,7 +374,7 @@ export class ClientGame implements Game {
     }
 
     /**
-     * El metodo validateCards valida cual(es) de las cartas del jugador pueden ser utilizadas en su turno según el parametro de la carta y color en juego.
+     * El metodo validateCards valida cual(es) de las cartas del jugador pueden ser utilizadas en su turno según la carta y el color en juego.
      *
      * @method validateCards
      * @public
@@ -477,8 +397,8 @@ export class ClientGame implements Game {
      * El metodo addCards recibe el array de cartas y la razón por la que las cartas van a ser añadidas al array de cartas del jugador.
      *
      * @method addCards
-     * @param {Card[]} cards
-     * @param {string} fault
+     * @param {Card[]} cards Nuevas cartas a agregar.
+     * @param {string} fault Si no es null contiene la falta por la que se recibieron nuevas cartas.
      * @public
      */
     public addCards(cards: Card[], fault: string) {
@@ -497,106 +417,15 @@ export class ClientGame implements Game {
     }
 
     /**
-     * El metodo renderPlayers dibuja los jugadores en el stage 2.
-     *
-     * @method renderPlayers
-     * @public
-     */
-    public renderPlayers() {
-        if (this.stage == 2) {
-            const table = $("#player-table tbody");
-            table.html("");
-            this.players.forEach(p => {
-
-                if (this.player.id == p.id && this.nameEditable) {
-                    table.append(`<tr id="player-stg2-${p.id}">
-                                <td class="player-name"><input value="${p.name}" class="input" id="player-name" autofocus></td>
-                                <td class="player-points">${p.points}</td>
-                                <td><button class="button" id="btn-set">Set</button></td>
-                              </tr>`);
-                } else {
-                    table.append(`<tr id="player-stg2-${p.id}">
-                                <td class="player-name">${p.name}</td>
-                                <td class="player-points">${p.points}</td>
-                              </tr>`);
-                }
-            });
-        } else if (this.stage == 3) {
-            $(".player").remove();
-            let plys = $(".players");
-            this.players.forEach(p => {
-                if (this.player.id == p.id) {
-                    $("#my-player").html(`
-                            <h3 class="player-name">${p.name}</h3>
-                            <h6>Cartas: <span class="player-card-number">0</span></h6>
-                            <h6>Puntos: <span class="player-points">${p.points}</span></h6>`);
-                } else {
-                    plys.append(`<div class="player" id="player-${p.id}">
-                            <h3 class="player-name">${p.name}</h3>
-                            <h6>Cartas: <span class="player-card-number">0</span></h6>
-                            <h6>Puntos: <span class="player-points">${p.points}</span></h6>
-                        </div>`);
-                }
-            });
-        }
-    }
-
-    /**
-     * El metodo setPage recibe el numero de cartas por pagina y paginá si tienes más de ese numero de cartas.
-     *
-     * @method setPage
-     * @param {number} p
-     * @public
-     */
-    public setPage(p: number) {
-        $(".card-uno").removeClass("visible");
-        this.page = p;
-        for (let i = (this.page - 1) * pageSize; i < this.page * pageSize; i++) {
-            if (i < this.player.cards.length) {
-                $(`#card-${i}`).addClass("visible");
-            }
-        }
-
-        if (this.page == 1) {
-            $("#paginate-left").addClass("disabled");
-        } else {
-            $("#paginate-left").removeClass("disabled");
-        }
-
-        if (this.page * pageSize < this.player.cards.length) {
-            $("#paginate-right").removeClass("disabled");
-        } else {
-            $("#paginate-right").addClass("disabled");
-        }
-    }
-
-    /**
      * El metodo setRound recibe el numero de ronda en la que está y dibuja en el html "Round: number".
      *
      * @method setRound
-     * @param {number} r
+     * @param {number} r Nueva ronda.
      * @public
      */
     public setRound(r: number) {
         this.round = r;
         $("#round").html(`Round: ${this.round}`);
-    }
-
-    /**
-     * Le metodo renderCardCounts anima el numero de cartas del jugador.
-     *
-     * @method renderCardCounts
-     * @public
-     */
-    public renderCardCounts() {
-        this.players.forEach(p => {
-            let id = `#player-${p.id}`;
-            if (this.player.id == p.id) {
-                id = "#my-player";
-            }
-
-            this.ui.animateNumber($(`${id} .player-card-number`), this.cardCounts[p.id], 300);
-        });
     }
 
     /**
@@ -624,7 +453,7 @@ export class ClientGame implements Game {
      * El metodo loggedOut recibe como parametro el jugador que cerró sesión notifica a los demas jugadores y lo saca del array de jugadores.
      *
      * @method loggedOut
-     * @param {Player} ply
+     * @param {Player} ply Jugador que cerró sesión
      */
     public loggedOut(ply: Player) {
         ply = this.getPlayer(ply.id);
@@ -635,10 +464,10 @@ export class ClientGame implements Game {
             position: NotifPositions.BottomLeft
         };
 
-        this.ui.showNotification(notif);
+        UIHelper.showNotification(notif);
 
         this.players.splice(this.players.indexOf(ply), 1);
-        this.renderPlayers();
+        this.ui.renderPlayers();
         this.setCurrentPlayer(this.currentPlayer);
     }
 }

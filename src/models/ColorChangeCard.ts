@@ -8,11 +8,10 @@ import {CardType} from "./Card";
 
 /**
  *
- * Clase ColorChangeCard, extends ActionCard.
+ * Representa una carta de cambio de color.
  *
  * @class ColorChangeCard
  * @extends ActionCard
- * @property type {readonly}
  */
 export class ColorChangeCard extends ActionCard {
     readonly type = CardType.ColorChange;
@@ -26,11 +25,8 @@ export class ColorChangeCard extends ActionCard {
 
 
     /**
-     * Funcion getName retorna el nombre de la carta Cambio de Color.
-     *
-     * @function getName {string}
-     * @return {string} Cambio de color.
-     * @public
+     * @inheritDoc
+     * @override
      */
     getName(): string {
         return "Cambio de color";

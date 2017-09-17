@@ -6,7 +6,7 @@ import {Card, CardType} from "./Card";
 import {Color} from "./Color";
 
 /**
- * Clase NumericCard, implementa la interface Card. Clase principal para las cartas de tipo numerica.
+ * Clase NumericCard, implementa la interface Card. Clase principal para las cartas de tipo numérico.
  *
  * @class NumericCard
  * @implements Card
@@ -14,47 +14,49 @@ import {Color} from "./Color";
 export class NumericCard implements Card {
 
     /**
-     * La propiedad points representa los puntos de la carta numerica. Estos corresponden al numero de la carta.
-     *
-     * @property points
-     * @type {number}
-     * @readonly
+     * @inheritDoc
      */
     readonly points: number;
 
     /**
-     * La propiedad type representa el tipo de la carta numerica. Esta corresponden a una carta numerica.
-     *
-     * @property type
-     * @type {CardType}
-     * @readonly
+     * @inheritDoc
      */
     readonly type = CardType.Numeric;
 
     /**
-     * @constructor
-     * @param {number} num
-     * @param {Color} color
+     * @inheritDoc
      */
-    constructor(public readonly num: number, public readonly color: Color) {
+    readonly color: Color;
+
+    /**
+     * Representa el número de la carta
+     *
+     * @property num
+     * @type {number}
+     * @readonly
+     */
+    readonly num: number;
+
+    /**
+     * @constructor
+     * @param {number} num El número de la carta
+     * @param {Color} color El color de la carta
+     */
+    constructor(num: number, color: Color) {
+        this.num = num;
         this.points = num;
+        this.color = color;
     }
 
     /**
-     * Funcion getImageName retorna el nombre de la imagen numerica.
-     *
-     * @function getImageName
-     * @return {string} Retorna el nombre de la imagen numerica.
+     * @inheritDoc
      */
     getImageName(): string {
         return this.num + this.color.code + ".png";
     }
 
     /**
-     * Funcion getName retorna el numero y el color de la carta.
-     *
-     * @function getName
-     * @return {string} Retorna el color de la imagen.
+     * @inheritDoc
      */
     getName(): string {
         return `${this.num} ${this.color.name}`;

@@ -20,6 +20,7 @@ export interface Card {
      * @readonly
      */
     readonly color: Color;
+
     /**
      * La propiedad Type representa el tipo de la carta.
      *
@@ -28,6 +29,7 @@ export interface Card {
      * @readonly
      */
     readonly type: CardType;
+
     /**
      * La propiedad Points representa el numero de puntos de la carta.
      *
@@ -38,20 +40,26 @@ export interface Card {
     readonly points: number;
 
     /**
-     * @method getImageName
-     * @return {string}
+     * Función que retorna el nombre de la imagen.
+     *
+     * @function getImageName
+     * @return {string} retorna el nombre de la imagen.
      */
     getImageName(): string;
 
+
     /**
-     * @method getName
-     * @return {string}
+     * Función que retorna el nombre de la carta y su color.
+     *
+     * @function getName
+     * @return {string} retorna el color de la imagen.
+     * @public
      */
     getName(): string;
 }
 
 /**
- * Lista de propiedades de CardType
+ * Representa cada uno de los tipos de cartas que pueden haber
  *
  * @enum CardType
  */

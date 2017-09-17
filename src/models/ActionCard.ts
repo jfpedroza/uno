@@ -14,36 +14,60 @@ import {Color} from "./Color";
  * @version 1.0
  */
 export abstract class ActionCard implements Card {
+
+    /**
+     * @inheritDoc
+     */
     readonly type: CardType;
 
     /**
-     * Constructor de la clase Card.
+     * @inheritDoc
+     */
+    readonly color: Color;
+
+    /**
+     * @inheritDoc
+     */
+    readonly points: number;
+
+    /**
+     * Código usando para identificar qué carta de acción es. También se usa en el nombre.
+     * Los códigos son los siguentes:
+     * - C: Cambio de color
+     * - +4: +4
+     * - +2: +2
+     * - R: Carta de retorno
+     * - S: Salto de turno
+     *
+     * @property code
+     * @type {string}
+     * @readonly
+     */
+    readonly code: string;
+
+    /**
+     * Constructor de la clase ActionCard.
      *
      * @constructor
      * @param code {string} Recibe el codigo de la carta.
      * @param color {Color} Instancia de Color para agregar como hijo de esta instancia de objeto.
      * @param points {number} Recibe el numero de puntos de la carta.
      */
-    constructor(public readonly code: string, public readonly color: Color, public readonly points: number) {
-
+    constructor(code: string, color: Color, points: number) {
+        this.code = code;
+        this.color = color;
+        this.points = points;
     }
 
     /**
-     * Función que retorna el nombre de la imagen.
-     *
-     * @function getImageName
-     * @return {string} retorna el nombre de la imagen.
-     * @public
+     * @inheritDoc
      */
     getImageName(): string {
         return this.code + this.color.code + ".png";
     }
+
     /**
-     * Función que retorna el nombre de la carta y su color.
-     *
-     * @function getName
-     * @return {string} retorna el color de la imagen.
-     * @public
+     * @inheritDoc
      */
     getName(): string {
         return `${this.code} ${this.color.name}`;

@@ -44,7 +44,7 @@ export interface UnoNotification {
 }
 
 /**
- * Interface NotificationType define metodos y propiedades del tipo notificaciones a implementar.
+ * Interface NotificationType define un tipo de notificación.
  *
  * @interface NotificationType
  * @version 1.0
@@ -71,40 +71,47 @@ export namespace NotificationTypes {
      * La constante Success representa el tipo de la notificación.
      *
      * @const Success
-     * @type {{name: string}}
+     * @type {NotificationType}
      */
     export const Success: NotificationType = { name: "success"};
     /**
      * La constante Info representa el tipo de la notificación.
      *
      * @const Info
-     * @type {{name: string}}
+     * @type {NotificationType}
      */
     export const Info: NotificationType = { name: "info"};
     /**
      * La constante Warning representa el tipo de la notificación.
      *
      * @const Warning
-     * @type {{name: string}}
+     * @type {NotificationType}
      */
     export const Warning: NotificationType = { name: "warning"};
     /**
      * La constante Error representa el tipo de la notificación.
      *
      * @const Error
-     * @type {{name: string}}
+     * @type {NotificationType}
      */
     export const Error: NotificationType = { name: "error"};
 }
 
 /**
- * Interface NotificationPosition define metodos y propiedades de la posición de las notificaciones a implementar.
+ * Interface NotificationPosition define una posición de notificación.
  *
  * @interface NotificationPosition
  * @property name {string}
  * @version 1.0
  */
 export interface NotificationPosition {
+
+    /**
+     * La propiedad name representa el nombre de la posición de notificación.
+     *
+     * @property name
+     * @type {string}
+     */
     name: string;
 }
 
@@ -120,7 +127,7 @@ export namespace NotifPositions {
      * La constate TopRight representa la posición de la notificación.
      *
      * @const TopRight
-     * @type {{name: string}}
+     * @type {NotificationPosition}
      */
     export const TopRight: NotificationPosition = { name: "top-right"};
 
@@ -128,7 +135,7 @@ export namespace NotifPositions {
      * La constate BottomRight representa la posición de la notificación.
      *
      * @const BottomRight
-     * @type {{name: string}}
+     * @type {NotificationPosition}
      */
     export const BottomRight: NotificationPosition = { name: "bottom-right"};
 
@@ -136,7 +143,7 @@ export namespace NotifPositions {
      * La constate TopLeft representa la posición de la notificación.
      *
      * @const TopLeft
-     * @type {{name: string}}
+     * @type {NotificationPosition}
      */
     export const TopLeft: NotificationPosition = { name: "top-left"};
 
@@ -144,7 +151,7 @@ export namespace NotifPositions {
      * La constate BottomLeft representa la posición de la notificación.
      *
      * @const BottomLeft
-     * @type {{name: string}}
+     * @type {NotificationPosition}
      */
     export const BottomLeft: NotificationPosition = { name: "bottom-left"};
 
@@ -152,7 +159,7 @@ export namespace NotifPositions {
      * La constate TopCenter representa la posición de la notificación.
      *
      * @const TopCenter
-     * @type {{name: string}}
+     * @type {NotificationPosition}
      */
     export const TopCenter: NotificationPosition = { name: "top-center"};
 
@@ -160,7 +167,7 @@ export namespace NotifPositions {
      * La constate BottomCenter representa la posición de la notificación.
      *
      * @const BottomCenter
-     * @type {{name: string}}
+     * @type {NotificationPosition}
      */
     export const BottomCenter: NotificationPosition = { name: "bottom-center"};
 }

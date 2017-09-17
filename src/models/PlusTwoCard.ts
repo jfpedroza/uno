@@ -15,19 +15,15 @@ import {CardType} from "./Card";
 export class PlusTwoCard extends ActionCard {
 
     /**
-     * La propiedad type representa el tipo de la carta la cuenta es una carta de acción y con la propiedad +2.
-     *
-     * @property type
-     * @type {CardType}
-     * @readonly
+     * @inheritDoc
      */
     readonly type = CardType.PlusTwo;
 
     /**
      * @constructor
-     * @param {Color} color
+     * @param {Color} color Color de la carta
      */
-    constructor(public readonly color: Color) {
+    constructor(color: Color) {
         super("+2", color, 20);
     }
 }
