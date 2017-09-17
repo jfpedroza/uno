@@ -145,7 +145,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_models_actioncard_.actioncard.html">ActionCard</a>.<a href="_models_actioncard_.actioncard.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/PlusFourCard.ts#L24">models/PlusFourCard.ts:24</a></li>
+									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/PlusFourCard.ts#L20">models/PlusFourCard.ts:20</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -168,13 +168,31 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_models_actioncard_.actioncard.html">ActionCard</a>.<a href="_models_actioncard_.actioncard.html#code">code</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L27">models/ActionCard.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L46">models/ActionCard.ts:46</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Recibe el codigo de la carta.</p>
+							<p>Código usando para identificar qué carta de acción es. También se usa en el nombre.
+							Los códigos son los siguentes:</p>
+							<ul>
+								<li>C: Cambio de color</li>
+								<li>+4: +4</li>
+								<li>+2: +2</li>
+								<li>R: Carta de retorno</li>
+								<li>S: Salto de turno</li>
+							</ul>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>property</dt>
+							<dd><p>code</p>
+							</dd>
+							<dt>type</dt>
+							<dd><p>{string}</p>
+							</dd>
+							<dt>readonly</dt>
+							<dd></dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -185,13 +203,23 @@
 						<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#color">color</a></p>
 						<p>Inherited from <a href="_models_actioncard_.actioncard.html">ActionCard</a>.<a href="_models_actioncard_.actioncard.html#color">color</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L27">models/ActionCard.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L26">models/ActionCard.ts:26</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Instancia de Color para agregar como hijo de esta instancia de objeto.</p>
+							<p>La propiedad color representa el color de la carta.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>property</dt>
+							<dd><p>color</p>
+							</dd>
+							<dt>type</dt>
+							<dd><p>{Color}</p>
+							</dd>
+							<dt>readonly</dt>
+							<dd></dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -202,13 +230,23 @@
 						<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#points">points</a></p>
 						<p>Inherited from <a href="_models_actioncard_.actioncard.html">ActionCard</a>.<a href="_models_actioncard_.actioncard.html#points">points</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L27">models/ActionCard.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L31">models/ActionCard.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Recibe el numero de puntos de la carta.</p>
+							<p>La propiedad Points representa el numero de puntos de la carta.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>property</dt>
+							<dd><p>points</p>
+							</dd>
+							<dt>type</dt>
+							<dd><p>{number}</p>
+							</dd>
+							<dt>readonly</dt>
+							<dd></dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite">
@@ -219,12 +257,12 @@
 						<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#type">type</a></p>
 						<p>Overrides <a href="_models_actioncard_.actioncard.html">ActionCard</a>.<a href="_models_actioncard_.actioncard.html#type">type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/PlusFourCard.ts#L24">models/PlusFourCard.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/PlusFourCard.ts#L20">models/PlusFourCard.ts:20</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>La propiedad type representa el tipo de la carta la cuenta es una carta de acción y con la propiedad +4.</p>
+							<p>La propiedad Type representa el tipo de la carta.</p>
 						</div>
 						<dl class="tsd-comment-tags">
 							<dt>property</dt>
@@ -253,7 +291,7 @@
 								<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#getimagename">getImageName</a></p>
 								<p>Inherited from <a href="_models_actioncard_.actioncard.html">ActionCard</a>.<a href="_models_actioncard_.actioncard.html#getimagename">getImageName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L38">models/ActionCard.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L65">models/ActionCard.ts:65</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -283,12 +321,12 @@
 								<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#getname">getName</a></p>
 								<p>Overrides <a href="_models_actioncard_.actioncard.html">ActionCard</a>.<a href="_models_actioncard_.actioncard.html#getname">getName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/PlusFourCard.ts#L40">models/PlusFourCard.ts:40</a></li>
+									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/PlusFourCard.ts#L33">models/PlusFourCard.ts:33</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Funcion getName retonar el nombre de la carta.</p>
+									<p>Función que retorna el nombre de la carta y su color.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>function</dt>
@@ -297,7 +335,7 @@
 								</dl>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-							<p>Retorna el nombre de la carta.</p>
+							<p>retorna el color de la imagen.</p>
 						</li>
 					</ul>
 				</section>

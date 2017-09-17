@@ -161,12 +161,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L17">models/ActionCard.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L46">models/ActionCard.ts:46</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Constructor de la clase Card.</p>
+									<p>Constructor de la clase ActionCard.</p>
 								</div>
 								<dl class="tsd-comment-tags">
 									<dt>constructor</dt>
@@ -213,13 +213,31 @@
 					<div class="tsd-signature tsd-kind-icon">code<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L27">models/ActionCard.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L46">models/ActionCard.ts:46</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Recibe el codigo de la carta.</p>
+							<p>Código usando para identificar qué carta de acción es. También se usa en el nombre.
+							Los códigos son los siguentes:</p>
+							<ul>
+								<li>C: Cambio de color</li>
+								<li>+4: +4</li>
+								<li>+2: +2</li>
+								<li>R: Carta de retorno</li>
+								<li>S: Salto de turno</li>
+							</ul>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>property</dt>
+							<dd><p>code</p>
+							</dd>
+							<dt>type</dt>
+							<dd><p>{string}</p>
+							</dd>
+							<dt>readonly</dt>
+							<dd></dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
@@ -229,13 +247,23 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#color">color</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L27">models/ActionCard.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L26">models/ActionCard.ts:26</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Instancia de Color para agregar como hijo de esta instancia de objeto.</p>
+							<p>La propiedad color representa el color de la carta.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>property</dt>
+							<dd><p>color</p>
+							</dd>
+							<dt>type</dt>
+							<dd><p>{Color}</p>
+							</dd>
+							<dt>readonly</dt>
+							<dd></dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
@@ -245,13 +273,23 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#points">points</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L27">models/ActionCard.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L31">models/ActionCard.ts:31</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Recibe el numero de puntos de la carta.</p>
+							<p>La propiedad Points representa el numero de puntos de la carta.</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>property</dt>
+							<dd><p>points</p>
+							</dd>
+							<dt>type</dt>
+							<dd><p>{number}</p>
+							</dd>
+							<dt>readonly</dt>
+							<dd></dd>
+						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
@@ -261,9 +299,24 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#type">type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L17">models/ActionCard.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L21">models/ActionCard.ts:21</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>La propiedad Type representa el tipo de la carta.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>property</dt>
+							<dd><p>type</p>
+							</dd>
+							<dt>type</dt>
+							<dd><p>{CardType}</p>
+							</dd>
+							<dt>readonly</dt>
+							<dd></dd>
+						</dl>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -279,7 +332,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#getimagename">getImageName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L38">models/ActionCard.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L65">models/ActionCard.ts:65</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -308,7 +361,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/_models_card_.card.html">Card</a>.<a href="../interfaces/_models_card_.card.html#getname">getName</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/01fd47c/src/models/ActionCard.ts#L48">models/ActionCard.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/johnf9896/uno/blob/a684592/src/models/ActionCard.ts#L72">models/ActionCard.ts:72</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
