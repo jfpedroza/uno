@@ -1,3 +1,7 @@
+/**
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
+
 import {Player} from "./models/Player";
 import {Deck} from "./models/Deck";
 import {Card, CardType} from "./models/Card";
@@ -7,20 +11,87 @@ import {Utils} from "./models/Utils";
 import {NotificationTypes, NotifPositions, UnoNotification} from "./models/Notification";
 import {Constants, Game} from "./models/Game";
 
+/**
+ * La clase ServerGame representa el juego del lado del servidor
+ * @class ServerGame
+ * @implements Game
+ */
 export class ServerGame implements Game {
 
+    /**
+     * @inheritDoc
+     */
     public players: Player[];
-    public currentPlayer: Player;
-    public winner: Player;
-    public deck: Deck;
-    public auxDeck: Deck;
-    public currentCard: Card;
-    public currentColor: Color;
-    public direction: boolean;
-    public sockets: Array<Socket>;
-    public gameStarted: boolean;
-    public round: number;
 
+    /**
+     * @inheritDoc
+     */
+    public currentPlayer: Player;
+
+    /**
+     * @inheritDoc
+     */
+    public winner: Player;
+
+    /**
+     * Representa el mazo del juego.
+     *
+     * @property deck
+     * @type {Deck}
+     */
+    public deck: Deck;
+
+    /**
+     * Representa el mazo de descartes del juego.
+     *
+     * @property auxDeck
+     * @type {Deck}
+     */
+    public auxDeck: Deck;
+
+    /**
+     * @inheritDoc
+     */
+    public currentCard: Card;
+
+    /**
+     * @inheritDoc
+     */
+    public currentColor: Color;
+
+    /**
+     * @inheritDoc
+     * @default true
+     */
+    public direction: boolean = true;
+
+    /**
+     * La propiedad sockets almacena el array de dockets del cliente, es un array asociativo.
+     *
+     * @property sockets
+     * @type {Array<Socket>}
+     */
+    public sockets: Array<Socket>;
+
+    /**
+     * Es una bandera que representa si el juego ha iniciado o no.
+     *
+     * @property
+     * @type {boolean}
+     * @default false
+     */
+    public gameStarted: boolean = false;
+
+    /**
+     * @inheritDoc
+     * @default 1
+     */
+    public round: number = 1;
+
+    /**
+     * @constructor
+     * @param {SocketIO.Server} io El manejador de sockets de socket.io.
+     */
     public constructor(public io: SocketIO.Server) {
         this.players = [];
         this.currentPlayer = null;
@@ -29,12 +100,16 @@ export class ServerGame implements Game {
         this.auxDeck = null;
         this.currentCard = null;
         this.currentColor = null;
-        this.direction = true;
         this.sockets = [];
-        this.gameStarted = false;
-        this.round = 1;
     }
 
+    /**
+     * Inicia sesión creando un nuevo jugador y enviándolo al servidor
+     *
+     * @param {Player} player El jugador a crear
+     * @param {SocketIO.Socket} socket El socket del cliente del jugador
+     * @returns {boolean} Si pudo iniciar sesión o no
+     */
     public newPlayer(player: Player, socket: Socket): boolean {
         if (!this.gameStarted) {
             console.log(`New player ID: ${player.id}`);
@@ -46,6 +121,9 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public getPlayer(id: number): Player {
         const result = this.players.filter(p => p.id == id);
         if (result.length > 0) {
@@ -55,9 +133,15 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * Retorna el siguiente jugador teniendo en cuenta al jugador actual, el parámetro shouldSkip, la dirección y la carta actual.
+     *
+     * @param {boolean} shouldSkip Indica si debería saltarse un jugador cuando la carta actual es de tipo Skip o PlusTwo.
+     * @returns {Player} El siguiente jugador
+     */
     public getNextPlayer(shouldSkip: boolean): Player {
         let dif = 1;
-        if (this.currentCard.type == CardType.Skip && shouldSkip) {
+        if ((this.currentCard.type == CardType.Skip || this.currentCard.type == CardType.PlusTwo) && shouldSkip) {
             dif = 2;
         }
 
@@ -79,6 +163,12 @@ export class ServerGame implements Game {
         return this.players[newIndex];
     }
 
+    /**
+     * Inicia el jugado inicializando los mazos, tomando una carta inicial y repartiendo las cartas iniciales a los jugadoores.
+     * Valida si se puede iniciar el juego.
+     *
+     * @param {Player} starter EL jugador que intenó iniciar el juego.
+     */
     public start(starter: Player) {
 
         let error = this.validateGame(starter);
@@ -117,11 +207,20 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public updatePlayer(player: Player) {
         this.getPlayer(player.id).name = player.name;
         this.emitAll("update-player", player);
     }
 
+    /**
+     * Se llama cuando el cliente dice que un stage está lista al finalizar la animación
+     *
+     * @param {Player} player El jugador envió el mensaje.
+     * @param {number} stage La stage que está lista.
+     */
     public stageReady(player: Player, stage: number) {
         if (stage == 2) {
             player = this.getPlayer(player.id);
@@ -132,12 +231,12 @@ export class ServerGame implements Game {
         } else if (stage == 3) {
             this.updateCardCount();
             this.emit(player, "set-current-player", this.currentPlayer);
-            if (this.winner != null) {
-                this.emit(player, "update-player", this.winner);
-            }
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public selectCard(card: Card) {
         this.auxDeck.push(this.currentCard);
         this.currentCard = Utils.createCard(card);
@@ -180,16 +279,31 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * Selecciona un color como actual
+     *
+     * @param {Color} color El nuevo color
+     */
     public selectColor(color: Color) {
         this.currentColor = color;
         this.emitAll("set-current-color", this.currentColor, this.currentPlayer);
     }
 
+    /**
+     *  Se llama cuando un jugador dice que su turno terminó.
+     *
+     * @param {Player} player El jugador que terminó su turno.
+     */
     public turnEnded(player: Player) {
         this.currentPlayer = this.getNextPlayer(false);
         this.emitAll("set-current-player", this.currentPlayer);
     }
 
+    /**
+     * Se llama cuando un jugador pide una carta del mazo.
+     *
+     * @param {Player} player El jugador que solicitó la carta.
+     */
     public pickFromDeck(player: Player) {
         let card = this.getCardFromDeck();
         this.getPlayer(player.id).add(card);
@@ -206,6 +320,11 @@ export class ServerGame implements Game {
         this.emitAllBut(player, "show-notification", notif);
     }
 
+    /**
+     * Devuelve una carta del mazo, revuelve si es necesario.
+     *
+     * @returns {Card} La carta del mazo.
+     */
     public getCardFromDeck(): Card {
         if (this.deck.size == 0) {
             this.deck = this.auxDeck;
@@ -216,6 +335,12 @@ export class ServerGame implements Game {
         return this.deck.pop();
     }
 
+    /**
+     * Devuelve un array de carta del mazo, revuelve si es necesario.
+     *
+     * @param {number} amount El numero de cartas a sacar.
+     * @returns {Card[]} El array de cartas del mazo.
+     */
     public getCardsFromDeck(amount: number): Card[] {
 
         if (this.deck.size < amount) {
@@ -230,6 +355,12 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * Se llama cuando un jugador dice uno.
+     * Penaliza si es necesario.
+     *
+     * @param {Player} player El jugador que dijo uno.
+     */
     public sayUno(player: Player) {
         player = this.getPlayer(player.id);
 
@@ -253,6 +384,12 @@ export class ServerGame implements Game {
         this.emitAllBut(player, "show-notification", notif);
     }
 
+    /**
+     * Se llama cuando un jugador presiona el botón de no dijo uno.
+     * Penaliza a los jugadores que sea necesario.
+     *
+     * @param {Player} player El jugador que presinó el botón.
+     */
     public didntSayUno(player: Player) {
         player = this.getPlayer(player.id);
         let fault = true;
@@ -281,6 +418,12 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * Cierra la sesión del jugador que lo solicite.
+     * Elimina el jugador del array.
+     *
+     * @param {Player} player El jugador que quiere cerrar sesión.
+     */
     public logOut(player: Player) {
         player = this.getPlayer(player.id);
 
@@ -302,17 +445,21 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * Marca a los jugadores como no listos.
+     */
     private unreadyPlayers() {
         this.players.forEach(p => p.ready = false);
     }
 
+    /**
+     * Se llama cuando alguien gana el juego.
+     */
     private win() {
         this.winner = this.currentPlayer;
         let newPoints = 0;
         this.players.forEach(p => {
             if (p.id != this.winner.id) {
-                let points = this.winner.points;
-                let cardPoints = p.getCardPoints();
                 newPoints += p.getCardPoints();
             }
         });
@@ -328,6 +475,11 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * Valida si alguien puede iniciar el juego o no.
+     * @param {Player} starter El jugador que quiere iniciar el juego.
+     * @returns {string} El mensaje de error, null cuando el jugador puede iniciarl juego
+     */
     private validateGame(starter: Player): string {
         if (this.players[0].id != starter.id) {
             return `Solo el primer jugador puede iniciar el juego`;
@@ -343,6 +495,9 @@ export class ServerGame implements Game {
         }
     }
 
+    /**
+     * Se llama cuando se pone un +2 o +4
+     */
     private onPlusN() {
         let amount = 2;
         if (this.currentCard.type == CardType.PlusFour) {
@@ -365,6 +520,10 @@ export class ServerGame implements Game {
         this.emitAllBut(player, "show-notification", notif);
     }
 
+    /**
+     * Retorna un array asociativo donde el índice es la id del jugador y el valor es el número de cartas del jugador.
+     * @returns {any} Array asociativo con el número de cartas.
+     */
     private getCardCount() {
         let array: any = {};
         this.players.forEach(p => {
@@ -374,10 +533,18 @@ export class ServerGame implements Game {
         return array;
     }
 
+    /**
+     * Le envía un mensaje a todos los clientes para que actualicen el número de cartas de los jugadores.
+     */
     private updateCardCount() {
         this.emitAll("update-card-count", this.getCardCount());
     }
 
+    /**
+     * Se llama cuando un jugador no dijo uno y otro jugador lo reportó.
+     * Penaliza al jugador que no dijo uno.
+     * @param {Player} player El jugador que no dijo uno.
+     */
     private playerDidntSayUno(player: Player) {
         let cards = this.getCardsFromDeck(2);
         player.addArray(cards);
@@ -394,22 +561,48 @@ export class ServerGame implements Game {
         this.emitAllBut(player, "show-notification", notif);
     }
 
+    /**
+     * Devuelve el socket correspondiente a un jugador.
+     *
+     * @param {Player} player El jugador que necesita el socket.
+     * @returns {SocketIO.Socket} El socket del jugador.
+     */
     public getSocket(player: Player): Socket {
         return this.sockets[player.id];
     }
 
+    /**
+     * Envía un mensaje al jugador que reciba como parámetro.
+     *
+     * @param {Player} player El jugador al que se le quiere enviar un mensaje.
+     * @param {string} event El mensaje que se quiere enviar
+     * @param args Los parámetros del mensaje
+     */
     public emit(player: Player, event: string, ... args: any[]) {
         this.getSocket(player).emit(event, ... args);
     }
 
+
+    /**
+     * Envía un mensaje a todos los jugadores conectados
+     *
+     * @param {string} event El mensaje que se quiere enviar
+     * @param args Los parámetros del mensaje
+     */
     public emitAll(event: string, ... args: any[]) {
         this.io.sockets.emit(event, ... args);
     }
 
+    /**
+     * Envía un mensaje a todos los jugadores menos el especificado
+     * @param {Player} player El jugador al que no se le enviará un mensaje
+     * @param {string} event El mensaje que se quiere enviar
+     * @param args Los parámetros del mensaje
+     */
     public emitAllBut(player: Player, event: string, ... args: any[]) {
         this.players.forEach(p => {
             if (p.id != player.id) {
-                this.emit(p, event, args);
+                this.emit(p, event, ... args);
             }
         });
     }

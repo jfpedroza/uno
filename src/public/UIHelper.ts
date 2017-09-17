@@ -1,24 +1,89 @@
+/**
+ * @author Kevin Serrano <kevinjsa2708@gmail.com>
+ */
+
 import {ClientGame} from "./ClientGame";
 import {Player} from "../models/Player";
 import {NotifPositions, UnoNotification} from "../models/Notification";
 import {Card} from "../models/Card";
 import {Color, Colors} from "../models/Color";
+import {Constants} from "../models/Game";
 
+/**
+ * La clase UIHelper contiene métodos para manipular la interfaz gráfica, también maneja los eventos de clic y los modales.
+ *
+ * @class UIHelper
+ */
 export class UIHelper {
+
+    /**
+     * Almacena la instancia del juego a la que está asociada esta UI.
+     *
+     * @property game
+     * @type {ClientGame
+     */
     game: ClientGame;
+
+    /**
+     * Representa el color escogido en el modal de selección de color.
+     *
+     * @property chosenColor
+     * @type {Color}
+     */
     chosenColor: Color;
 
+    /**
+     * Representa la página de cartas que se están mostrando.
+     * 
+     * @property page
+     * @type {number}
+     * @default 1
+     */
+    public page: number = 1;
+
+    /**
+     * Representa la parta del juego en la que se encuentra el jugador.
+     *
+     * @property stage
+     * @type {number}
+     * @default 1
+     */
+    public stage: number = 1;
+
+    /**
+     * Determina si el nombre se puede cambiar en el stage 2 o no.
+     *
+     * @property nameEditable
+     * @type {boolean}
+     * @default true
+     */
+    public nameEditable = true;
+
+    /**
+     * @constructor
+     * @param {ClientGame} game El juego al que estará asociado esta UI.
+     */
     public constructor(game: ClientGame) {
         this.game = game;
         this.chosenColor = null;
     }
 
+    /**
+     * Configura los modales y las notificaciones.
+     *
+     * @method configure
+     */
     public configure() {
         this.configureChooseColorModal();
         this.configureRoundEndModal();
-        this.configureToastr();
+        UIHelper.configureToastr();
     }
 
+    /**
+     * Registra todos los eventos de clic del juego.
+     *
+     * @method clickEvents
+     */
     public clickEvents() {
         this.btnRestartClick();
         this.btnLogoutClick();
@@ -34,8 +99,15 @@ export class UIHelper {
         this.btnNoClick();
     }
 
+    /**
+     * Actualiza un jugador en la pantalla.
+     *
+     * @method updatePlayer
+     * @param {Player} p El jugador que se quiere actualizar.
+     * @param {boolean} animate Si debe animar las propiedades numéricas o no.
+     */
     public updatePlayer(p: Player, animate: boolean) {
-        if (this.game.stage == 2) {
+        if (this.stage == 2) {
             if (this.game.player.id != p.id) {
                 $(`#player-stg2-${p.id} .player-name`).html(`${p.name}`);
             }
@@ -45,7 +117,7 @@ export class UIHelper {
             } else {
                 $(`#player-stg2-${p.id} .player-points`).html(`${p.points}`);
             }
-        } else if (this.game.stage == 3) {
+        } else if (this.stage == 3) {
             let id = `#player-${p.id}`;
             if (this.game.player.id == p.id) {
                 id = "#my-player";
@@ -63,6 +135,13 @@ export class UIHelper {
         }
     }
 
+    /**
+     * Anima el cambio del valor numérico de un elemento.
+     *
+     * @param el Elemento que contiene el número.
+     * @param {number} newValue El nuevo valor del elemento.
+     * @param {number} time El tiempo entre cada cambio del número.
+     */
     public animateNumber(el: any, newValue: number, time: number) {
         const value = parseInt(el.text());
         let duration = (newValue - value) * time;
@@ -80,6 +159,11 @@ export class UIHelper {
         });
     }
 
+    /**
+     * Dibuja todas las cartas en pantalla.
+     *
+     * @method renderCards
+     */
     public renderCards() {
         $(".card-uno").remove();
         let cards = $("#my-cards");
@@ -90,32 +174,121 @@ export class UIHelper {
                         </div>`);
         });
 
-        this.game.setPage(1);
+        this.setPage(1);
     }
 
+    /**
+     * El metodo renderPlayers dibuja los jugadores en la pantalla
+     *
+     * @method renderPlayers
+     * @public
+     */
+    public renderPlayers() {
+        if (this.stage == 2) {
+            const table = $("#player-table tbody");
+            table.html("");
+            this.game.players.forEach(p => {
+
+                if (this.game.player.id == p.id && this.nameEditable) {
+                    table.append(`<tr id="player-stg2-${p.id}">
+                                <td class="player-name"><input value="${p.name}" class="input" id="player-name" autofocus></td>
+                                <td class="player-points">${p.points}</td>
+                                <td><button class="button" id="btn-set">Set</button></td>
+                              </tr>`);
+                } else {
+                    table.append(`<tr id="player-stg2-${p.id}">
+                                <td class="player-name">${p.name}</td>
+                                <td class="player-points">${p.points}</td>
+                              </tr>`);
+                }
+            });
+        } else if (this.stage == 3) {
+            $(".player").remove();
+            let plys = $(".players");
+            this.game.players.forEach(p => {
+                if (this.game.player.id == p.id) {
+                    $("#my-player").html(`
+                            <h3 class="player-name">${p.name}</h3>
+                            <h6>Cartas: <span class="player-card-number">0</span></h6>
+                            <h6>Puntos: <span class="player-points">${p.points}</span></h6>`);
+                } else {
+                    plys.append(`<div class="player" id="player-${p.id}">
+                            <h3 class="player-name">${p.name}</h3>
+                            <h6>Cartas: <span class="player-card-number">0</span></h6>
+                            <h6>Puntos: <span class="player-points">${p.points}</span></h6>
+                        </div>`);
+                }
+            });
+        }
+    }
+
+    /**
+     * Dibuja el sentido actual del juego.
+     *
+     * @method renderDirection
+     */
     public renderDirection() {
         let code = this.game.direction ? "cw" : "acw";
         $("#arrow-left").attr("src", `img/arrow-${code}-left.png`);
         $("#arrow-right").attr("src", `img/arrow-${code}-right.png`);
     }
 
+    /**
+     * Le metodo renderCardCounts dibuja y anima el numero de cartas del jugador.
+     *
+     * @method renderCardCounts
+     * @public
+     */
+    public renderCardCounts() {
+        this.game.players.forEach(p => {
+            let id = `#player-${p.id}`;
+            if (this.game.player.id == p.id) {
+                id = "#my-player";
+            }
+
+            this.animateNumber($(`${id} .player-card-number`), this.game.cardCounts[p.id], 300);
+        });
+    }
+
+    /**
+     * Dibuja el color actual en la pantalla.
+     *
+     * @method setCurrentColor
+     */
     public setCurrentColor() {
 
         $("#current-color").removeClass("red green blue yellow")
             .addClass(this.game.currentColor.codeName);
     }
 
+    /**
+     * Dibuja la carta actual en pantalla.
+     *
+     * @method setCurrentCard
+     */
     public setCurrentCard() {
         $("#current-card").attr("src", "img/" + this.game.currentCard.getImageName());
     }
 
+    /**
+     * Abre el modal para selecciona un color.
+     *
+     * @method openChooseColorModal
+     */
     public openChooseColorModal() {
         this.chosenColor = this.game.currentColor;
         $("#choose-color-" + this.chosenColor.codeName).html("<h2>Seleccionado</h2>");
         $("#choose-color-modal").modal("show");
     }
 
-    public showNotification(notification: UnoNotification) {
+    /**
+     * Muesntra la notificación en pantalla.
+     *
+     * @method showNotification
+     * @param {UnoNotification} notification La notificación que se quiere mostrar.
+     * @static
+     */
+    public static showNotification(notification: UnoNotification) {
         if (notification.position == null) {
             notification.position = NotifPositions.TopRight;
         }
@@ -128,6 +301,13 @@ export class UIHelper {
         }
     }
 
+    /**
+     * Muentra el modal con las nuevas cartas que recibió el jugador.
+     *
+     * @method showNewCardsModal
+     * @param {Card[]} cards Las nuevas cartas.
+     * @param {string} fault Si no es null contiene la falta por la que se recibieron nuevas cartas.
+     */
     public showNewCardsModal(cards: Card[], fault: string) {
         let modal = $("#new-cards-modal");
         let content = $("#new-card-content");
@@ -157,6 +337,13 @@ export class UIHelper {
         });
     }
 
+    /**
+     * Muentra un diciendo que la ronda acabó.
+     *
+     * @method showRoundEndModal
+     * @param {Player} winner
+     * @param {number} winPoints
+     */
     public showRoundEndModal(winner: Player, winPoints: number) {
         let modal = $("#round-end-modal");
         let content = $("#round-end-content");
@@ -170,10 +357,17 @@ export class UIHelper {
         modal.modal("show");
     }
 
-    public setStage(oldStage: number, newStage: number) {
-        $("#stage-" + oldStage).hide(1000);
-        $("#stage-" + newStage).show(1000, this.game.onStageChange);
-        if (newStage > 1) {
+    /**
+     * Cambia de stage el juego animando el cambio.
+     *
+     * @method setStage
+     * @param {number} s EL nuevo stage.
+     */
+    public setStage(s: number) {
+        $("#stage-" + this.stage).hide(1000);
+        this.stage = s;
+        $("#stage-" + this.stage).show(1000, this.onStageChange);
+        if (this.stage > 1) {
             $("#round").show();
             $("#log-out-btn").show();
         } else {
@@ -181,7 +375,63 @@ export class UIHelper {
             $("#log-out-btn").hide();
         }
     }
+    
+    /**
+     * El metodo setPage recibe la página de las cartas que se quiere mostrar.
+     *
+     * @method setPage
+     * @param {number} p Nueva página.
+     * @public
+     */
+    public setPage(p: number) {
+        $(".card-uno").removeClass("visible");
+        this.page = p;
+        for (let i = (this.page - 1) * Constants.pageSize; i < this.page * Constants.pageSize; i++) {
+            if (i < this.game.player.cards.length) {
+                $(`#card-${i}`).addClass("visible");
+            }
+        }
 
+        if (this.page == 1) {
+            $("#paginate-left").addClass("disabled");
+        } else {
+            $("#paginate-left").removeClass("disabled");
+        }
+
+        if (this.page * Constants.pageSize < this.game.player.cards.length) {
+            $("#paginate-right").removeClass("disabled");
+        } else {
+            $("#paginate-right").addClass("disabled");
+        }
+    }
+
+    /**
+     * El metodo onStageChange dibuja lo referente para cada una de las Stage.
+     *
+     * @method onStageChange
+     * @public
+     */
+    public onStageChange() {
+        let game = ClientGame.instance;
+        if (game.ui.stage == 2) {
+            game.ui.renderPlayers();
+        }
+        else if (game.ui.stage == 3) {
+            game.ui.setCurrentCard();
+            game.ui.setCurrentColor();
+            game.ui.renderPlayers();
+            game.ui.renderCards();
+            game.ui.renderDirection();
+        }
+
+        game.socket.emit("stage-ready", game.player, game.ui.stage);
+    }
+    
+    /**
+     * Configura el modal de selección color.
+     *
+     * @method configureChooseColorModal
+     */
     private configureChooseColorModal() {
 
         let modal = $("#choose-color-modal");
@@ -193,13 +443,18 @@ export class UIHelper {
 
         let _this = this;
         let game = this.game;
-        modal.on("hide.bs.modal", function () {
+        modal.on("hide.bs.modal", () => {
             $("#choose-color-" + _this.chosenColor.codeName).html("");
             game.socket.emit("select-color", _this.chosenColor);
             game.socket.emit("turn-ended", game.player);
         });
     }
 
+    /**
+     * Configura el modal de fin de ronda.
+     *
+     * @method configureRoundEndModal
+     */
     private configureRoundEndModal() {
         let modal = $("#round-end-modal");
         modal.modal({
@@ -208,14 +463,19 @@ export class UIHelper {
             show: false
         });
 
-        let game = this.game;
-        modal.on("hide.bs.modal", function () {
-            game.setStage(2);
-            game.setRound(game.round + 1);
+        modal.on("hide.bs.modal", ()=> {
+            this.setStage(2);
+            this.game.setRound(this.game.round + 1);
         });
     }
 
-    private configureToastr() {
+    /**
+     * Configura el la biblioteca de notificaciones toastr.
+     *
+     * @method configureToastr
+     * @static
+     */
+    private static configureToastr() {
 
         toastr.options = {
             "closeButton": false,
@@ -236,9 +496,15 @@ export class UIHelper {
         };
     }
 
+    /**
+     * Configura el evento de selección de color.
+     *
+     * @method selectColorClick
+     */
     public selectColorClick() {
+
         let _this = this;
-        $(".choose-color").click(function () {
+        $(".choose-color").click(function() {
             $("#choose-color-" + _this.chosenColor.codeName).html("");
             let id = $(this).attr("id");
             let color = id.substr(13);
@@ -261,62 +527,95 @@ export class UIHelper {
         });
     }
 
+    /**
+     * Configura el evento de reinicio.
+     *
+     * @method btnRestartClick
+     */
     private btnRestartClick() {
-        let game = this.game;
-        $("#restart-btn").click(function(e) {
+        $("#restart-btn").click((e) => {
             e.preventDefault();
-            game.restart();
+            this.game.restart();
         });
     }
 
+    /**
+     * Configura el evento de cierre de sesión.
+     *
+     * @method btnLogoutClick
+     */
     private btnLogoutClick() {
-        let game = this.game;
-        $("#log-out-btn").click(function(e) {
+        $("#log-out-btn").click((e) => {
             e.preventDefault();
-            game.logOut();
+            this.game.logOut();
         });
     }
 
+    /**
+     * Configura el evento de entrar al juego.
+     *
+     * @method btnEnterClick
+     */
     private btnEnterClick() {
-        let game = this.game;
-        $("#btn-enter").click(function(e) {
-            game.setNewPlayer();
-            game.setStage(2);
+        $("#btn-enter").click(e => {
+            this.game.setNewPlayer();
+            this.setStage(2);
         });
     }
 
+    /**
+     * Configura el evento de cambio de nombre de jugador.
+     *
+     * @method btnSetClick
+     */
     private btnSetClick() {
-        let game = this.game;
         $("#player-table").on('click', '#btn-set', () => {
-            game.setPlayerName(<string>$("#player-name").val());
+            this.game.setPlayerName(<string>$("#player-name").val());
         });
     }
 
+    /**
+     * Configura el evento de selección de color.
+     *
+     * @method btnStartClick
+     */
     private btnStartClick() {
-        let game = this.game;
-        $("#btn-start").click(function(e) {
-            game.start();
+        $("#btn-start").click((e) => {
+            this.game.start();
         });
     }
 
+    /**
+     * Configura el evento de paginar a la izquierda.
+     *
+     * @method btnPaginateLeftClick
+     */
     private btnPaginateLeftClick() {
-        let game = this.game;
-        $("#paginate-left img").click(function () {
+        $("#paginate-left img").click(() => {
             if (!$("#paginate-left").hasClass("disabled")) {
-                game.setPage(game.page - 1);
+                this.setPage(this.page - 1);
             }
         });
     }
 
+    /**
+     * Configura el evento de paginar a la derecha.
+     *
+     * @method btnPaginateRightClick
+     */
     private btnPaginateRightClick() {
-        let game = this.game;
-        $("#paginate-right img").click(function () {
+        $("#paginate-right img").click(() => {
             if (!$("#paginate-right").hasClass("disabled")) {
-                game.setPage(game.page + 1);
+                this.setPage(this.page + 1);
             }
         });
     }
 
+    /**
+     * Configura el evento de poner carta.
+     *
+     * @method btnPutCardClick
+     */
     private btnPutCardClick() {
         let game = this.game;
         $("#my-cards").on("click", ".put-card-btn", function (e) {
@@ -329,25 +628,37 @@ export class UIHelper {
         });
     }
 
+    /**
+     * Configura el evento de tomar una carta del mazo.
+     *
+     * @method btnPickFromDeckClick
+     */
     private btnPickFromDeckClick() {
-        let game = this.game;
-        $("#deck .put-card-btn").click(function (e) {
+        $("#deck .put-card-btn").click((e) => {
             e.preventDefault();
-            game.pickFromDeck();
+            this.game.pickFromDeck();
         });
     }
 
+    /**
+     * Configura el evento de decir uno.
+     *
+     * @method btnUnoClick
+     */
     private btnUnoClick() {
-        let game = this.game;
-        $("#uno-btn").click(function () {
-            game.sayUno();
+        $("#uno-btn").click(() => {
+            this.game.sayUno();
         });
     }
 
+    /**
+     * Configura el evento de no dijo uno.
+     *
+     * @method btnNoClick
+     */
     private btnNoClick() {
-        let game = this.game;
-        $("#no-btn").click(function () {
-            game.didntSayUno();
+        $("#no-btn").click(() => {
+            this.game.didntSayUno();
         });
     }
 }

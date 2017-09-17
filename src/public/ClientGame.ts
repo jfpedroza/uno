@@ -1,32 +1,104 @@
-import {Constants, Game} from "../models/Game";
+/**
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+*/
+
+import {Game} from "../models/Game";
 import {Color} from "../models/Color";
 import {Card, CardType} from "../models/Card";
 import {Player} from "../models/Player";
 import Socket = SocketIOClient.Socket;
 import {NumericCard} from "../models/NumericCard";
-import pageSize = Constants.pageSize;
 import {Utils} from "../models/Utils";
 import {NotificationTypes, NotifPositions, UnoNotification} from "../models/Notification";
 import {UIHelper} from "./UIHelper";
 
+/**
+ * La clase ClientGame representa el juego del lado del cliente.
+ *
+ * @class ClientGame
+ * @implements Game
+ */
 export class ClientGame implements Game {
 
+    /**
+     * La propiedad socket representa el socket del cliente.
+     *
+     * @property socket
+     * @type {Socket}
+     * @public
+     */
     public socket: Socket;
+
+    /**
+     * @inheritDoc
+     */
     public players: Player[] = [];
+
+    /**
+     * @inheritDoc
+     */
     public player: Player;
+
+    /**
+     * @inheritDoc
+     */
     public currentPlayer: Player;
+
+    /**
+     * @inheritDoc
+     */
     public winner: Player;
+
+    /**
+     * @inheritDoc
+     */
     public currentCard: Card;
+
+    /**
+     * @inheritDoc
+     */
     public currentColor: Color;
+
+    /**
+     * @inheritDoc
+     * @default true
+     */
     public direction: boolean = true;
+
+    /**
+     * @inheritDoc
+     * @default 1
+     */
     public round: number = 1;
-    public stage: number = 1;
-    public page: number = 1;
+
+    /**
+     * Objeto que almacena la cantidad de cartas de los jugadores. Las propiedades son las ids de los jugadores.
+     *
+     * @property cardCounts
+     * @type any
+     */
     public cardCounts: any;
-    public nameEditable = true;
+
+    /**
+     * Representa la UI del juego.
+     *
+     * @property ui
+     * @type {UIHelper}
+     */
     public ui: UIHelper;
+
+    /**
+     * Instancia única del juego.
+     *
+     * @property instance
+     * @type {ClientGame}
+     */
     public static instance: ClientGame;
 
+    /**
+     * @constructor
+     * @param {SocketIOClient.Socket} socket Socket conectado al servidor.
+     */
     public constructor(socket: Socket) {
         this.socket = socket;
         this.player = null;
@@ -39,15 +111,38 @@ export class ClientGame implements Game {
         ClientGame.instance = this;
     }
 
+    /**
+     * El metodo setNewPlayer crea el nuevo jugador y lo envia al servidor.
+     *
+     * @method setNewPlayer
+     * @public
+     */
     public setNewPlayer() {
         this.player = new Player(new Date().getTime(), "New Player");
         this.socket.emit("new-player", this.player);
     }
 
+    /**
+     * envia la señal y el jugador del cliente para iniciar el juego.
+     *
+     * @method start
+     * @public
+     */
     public start() {
         this.socket.emit("start", this.player);
     }
 
+    /**
+     * El metodo startGame recibe el jugador, las cartas, el color, la dirección y la ronda para iniciar el juego.
+     *
+     * @method stratGame
+     * @param {Player} ply Mi jugador.
+     * @param {Card} currentCard Carta actual inicial.
+     * @param {Color} currentColor Color inicial.
+     * @param {boolean} direction Dirección inicial.
+     * @param {number} round Ronda inicial.
+     * @public
+     */
     public startGame(ply: Player, currentCard: Card, currentColor: Color, direction: boolean, round: number) {
         this.player = ply;
         this.player.cards = Utils.createCards(ply.cards);
@@ -57,6 +152,10 @@ export class ClientGame implements Game {
         this.setRound(round);
     }
 
+    /**
+     * @inheritDoc
+     * @public
+     */
     public getPlayer(id: number): Player {
         const result = this.players.filter(p => p.id == id);
         if (result.length > 0) {
@@ -66,6 +165,10 @@ export class ClientGame implements Game {
         }
     }
 
+    /**
+     * @inheritDoc
+     * @public
+     */
     public updatePlayer(ply: Player) {
         let p = this.getPlayer(ply.id);
         if (p != null) {
@@ -80,17 +183,30 @@ export class ClientGame implements Game {
             this.player.cards = Utils.createCards(ply.cards);
         }
 
-        if (this.player != null && this.stage >= 2) {
-            console.log("updating player", p);
+        if (this.player != null && this.ui.stage >= 2) {
             this.ui.updatePlayer(p, true);
         }
     }
 
+    /**
+     * El metodo setPlayerName recibe como parametro el nombre que desea actualizar y envia el mensaje al servidor para que sea enviado a los demas clientes.
+     *
+     * @method setPlayerName
+     * @param {string} name Nuevo nombre del jugador.
+     * @public
+     */
     public setPlayerName(name: string) {
         this.player.name = name;
         this.socket.emit("update-player", this.player);
     }
 
+    /**
+     * El metodo setCurrentPlayer recibe como parametro un jugador lo establece como el actual.
+     *
+     * @method setCurrentPlayer
+     * @param {Player} current Nuevo jugador actual.
+     * @public
+     */
     public setCurrentPlayer(current: Player) {
         if (this.currentPlayer != null) {
             if (this.currentPlayer.id == this.player.id) {
@@ -116,14 +232,29 @@ export class ClientGame implements Game {
             position: NotifPositions.BottomLeft
         };
 
-        this.ui.showNotification(notif);
+        UIHelper.showNotification(notif);
     }
 
+    /**
+     * El metodo setDirection recibe como paramtro el bool de la dirección y llama al metodo renderDirection para dibujar la dirección.
+     *
+     * @method setDirection
+     * @param {boolean} dir Nueva dirección.
+     * @public
+     */
     public setDirection(dir: boolean) {
         this.direction = dir;
         this.ui.renderDirection();
     }
 
+    /**
+     * El metodo selectCard recibe la carta como parametro y envia está al servidor.
+     * Además, si el tipo de carta el amerita una selección de color abre el modal de selección de color.
+     *
+     * @method selectCard
+     * @param {Card} card Carta a seleccionar.
+     * @public
+     */
     public selectCard(card: Card) {
         this.socket.emit("select-card", card);
 
@@ -132,6 +263,14 @@ export class ClientGame implements Game {
         }
     }
 
+    /**
+     * El metodo setCurrentCard cambia la carta actual por la seleccionada por el jugador.
+     *
+     * @method setCurrentCard
+     * @param {Card} card Nueva carta actual.
+     * @param {Player} ply Jugador que la cambió.
+     * @public
+     */
     public setCurrentCard(card: Card, ply: Player) {
 
         card = Utils.createCard(card);
@@ -149,12 +288,19 @@ export class ClientGame implements Game {
                 position: NotifPositions.BottomLeft
             };
 
-            this.ui.showNotification(notif);
+            UIHelper.showNotification(notif);
         }
-
         this.ui.setCurrentCard();
     }
 
+    /**
+     * El metod setCurrentColor cambia el color actual por el de la carta que puso el jugador en turno.
+     *
+     * @method setCurrentColor
+     * @param {Color} color Nuevo color.
+     * @param {Player} ply Jugador que cambió el color.
+     * @public
+     */
     public setCurrentColor(color: Color, ply: Player) {
         this.currentColor = color;
         this.ui.setCurrentColor();
@@ -168,43 +314,47 @@ export class ClientGame implements Game {
                 position: NotifPositions.BottomLeft
             };
 
-            this.ui.showNotification(notif);
+            UIHelper.showNotification(notif);
         }
     }
 
+    /**
+     * El metodo pickFromDeck envia un mensaje al servidor para tomar una carta del mazo.
+     *
+     * @method pickFromDeck
+     * @public
+     */
     public pickFromDeck() {
         this.socket.emit("pick-from-deck", this.player);
     }
 
+    /**
+     * El metodo sayUno envia un mensaje al servidor para anunciar que dijo uno a los demas jugadores.
+     *
+     * @method sayUno
+     * @public
+     */
     public sayUno() {
         this.socket.emit("say-uno", this.player);
     }
 
+    /**
+     * El metodo didntSayUno envia un mensaje al servidor para anunciar que algún jugador no dijo uno.
+     *
+     * @method didntSayUno
+     * @public
+     */
     public didntSayUno() {
         this.socket.emit("didnt-say-uno", this.player);
     }
 
-    public setStage(stage: number) {
-        this.ui.setStage(this.stage, stage);
-        this.stage = stage;
-    }
-
-    public onStageChange() {
-        let game = ClientGame.instance;
-        if (game.stage == 2) {
-            game.renderPlayers();
-        }
-        else if (game.stage == 3) {
-            game.ui.setCurrentCard();
-            game.ui.setCurrentColor();
-            game.renderPlayers();
-            game.ui.renderCards();
-            game.ui.renderDirection();
-        }
-
-        game.socket.emit("stage-ready", game.player, game.stage);
-    }
-
+    /**
+     * El metodo validateCard recibe la carta a validar y retorna true/false dependiendo si puede o no jugar la carta.
+     *
+     * @method validateCard
+     * @param {Card} card
+     * @return {boolean}
+     */
     public validateCard(card: Card): boolean {
         if (card.type == this.currentCard.type) {
             if (this.currentCard.type == CardType.Numeric) {
@@ -223,6 +373,12 @@ export class ClientGame implements Game {
         }
     }
 
+    /**
+     * El metodo validateCards valida cual(es) de las cartas del jugador pueden ser utilizadas en su turno según la carta y el color en juego.
+     *
+     * @method validateCards
+     * @public
+     */
     public validateCards() {
         if (this.currentPlayer.id == this.player.id) {
             this.player.cards.forEach((c, i) => {
@@ -237,6 +393,14 @@ export class ClientGame implements Game {
         }
     }
 
+    /**
+     * El metodo addCards recibe el array de cartas y la razón por la que las cartas van a ser añadidas al array de cartas del jugador.
+     *
+     * @method addCards
+     * @param {Card[]} cards Nuevas cartas a agregar.
+     * @param {string} fault Si no es null contiene la falta por la que se recibieron nuevas cartas.
+     * @public
+     */
     public addCards(cards: Card[], fault: string) {
         cards = Utils.createCards(cards);
         this.player.cards.push(... cards);
@@ -252,92 +416,45 @@ export class ClientGame implements Game {
         }
     }
 
-    public renderPlayers() {
-        if (this.stage == 2) {
-            const table = $("#player-table tbody");
-            table.html("");
-            this.players.forEach(p => {
-
-                if (this.player.id == p.id && this.nameEditable) {
-                    table.append(`<tr id="player-stg2-${p.id}">
-                                <td class="player-name"><input value="${p.name}" class="input" id="player-name" autofocus></td>
-                                <td class="player-points">${p.points}</td>
-                                <td><button class="button" id="btn-set">Set</button></td>
-                              </tr>`);
-                } else {
-                    table.append(`<tr id="player-stg2-${p.id}">
-                                <td class="player-name">${p.name}</td>
-                                <td class="player-points">${p.points}</td>
-                              </tr>`);
-                }
-            });
-        } else if (this.stage == 3) {
-            $(".player").remove();
-            let plys = $(".players");
-            this.players.forEach(p => {
-                if (this.player.id == p.id) {
-                    $("#my-player").html(`
-                            <h3 class="player-name">${p.name}</h3>
-                            <h6>Cartas: <span class="player-card-number">0</span></h6>
-                            <h6>Puntos: <span class="player-points">${p.points}</span></h6>`);
-                } else {
-                    plys.append(`<div class="player" id="player-${p.id}">
-                            <h3 class="player-name">${p.name}</h3>
-                            <h6>Cartas: <span class="player-card-number">0</span></h6>
-                            <h6>Puntos: <span class="player-points">${p.points}</span></h6>
-                        </div>`);
-                }
-            });
-        }
-    }
-
-    public setPage(p: number) {
-        $(".card-uno").removeClass("visible");
-        this.page = p;
-        for (let i = (this.page - 1) * pageSize; i < this.page * pageSize; i++) {
-            if (i < this.player.cards.length) {
-                $(`#card-${i}`).addClass("visible");
-            }
-        }
-
-        if (this.page == 1) {
-            $("#paginate-left").addClass("disabled");
-        } else {
-            $("#paginate-left").removeClass("disabled");
-        }
-
-        if (this.page * pageSize < this.player.cards.length) {
-            $("#paginate-right").removeClass("disabled");
-        } else {
-            $("#paginate-right").addClass("disabled");
-        }
-    }
-
+    /**
+     * El metodo setRound recibe el numero de ronda en la que está y dibuja en el html "Round: number".
+     *
+     * @method setRound
+     * @param {number} r Nueva ronda.
+     * @public
+     */
     public setRound(r: number) {
         this.round = r;
         $("#round").html(`Round: ${this.round}`);
     }
 
-    public renderCardCounts() {
-        this.players.forEach(p => {
-            let id = `#player-${p.id}`;
-            if (this.player.id == p.id) {
-                id = "#my-player";
-            }
-
-            this.ui.animateNumber($(`${id} .player-card-number`), this.cardCounts[p.id], 300);
-        });
-    }
-
+    /**
+     * El metodo logOut envia un mensaje de desconexión al servidor y recarga el cliente.
+     *
+     * @method logOut
+     * @public
+     */
     public logOut() {
         this.socket.emit("log-out", this.player);
         location.reload(true);
     }
 
+    /**
+     * El metodo restart envia un mensaje al servidor que actualiza todos los clientes en sesión.
+     *
+     * @method restart
+     * @public
+     */
     public restart() {
         this.socket.emit("restart");
     }
 
+    /**
+     * El metodo loggedOut recibe como parametro el jugador que cerró sesión notifica a los demas jugadores y lo saca del array de jugadores.
+     *
+     * @method loggedOut
+     * @param {Player} ply Jugador que cerró sesión
+     */
     public loggedOut(ply: Player) {
         ply = this.getPlayer(ply.id);
         let notif: UnoNotification = {
@@ -347,10 +464,10 @@ export class ClientGame implements Game {
             position: NotifPositions.BottomLeft
         };
 
-        this.ui.showNotification(notif);
+        UIHelper.showNotification(notif);
 
         this.players.splice(this.players.indexOf(ply), 1);
-        this.renderPlayers();
+        this.ui.renderPlayers();
         this.setCurrentPlayer(this.currentPlayer);
     }
 }

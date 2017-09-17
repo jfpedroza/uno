@@ -1,3 +1,7 @@
+/**
+ * @author Kevin Serrano <kevinjsa2708@gmail.com>
+ */
+
 import {Card, CardType} from "./Card";
 import {NumericCard} from "./NumericCard";
 import {ColorChangeCard} from "./ColorChangeCard";
@@ -5,10 +9,22 @@ import {PlusFourCard} from "./PlusFourCard";
 import {PlusTwoCard} from "./PlusTwoCard";
 import {ReturnCard} from "./ReturnCard";
 import {SkipCard} from "./SkipCard";
-import {Player} from "./Player";
 
+/**
+ * Clase Utils define metodos y propiedades varios para ser accedidos.
+ *
+ * @class Utils
+ */
 export class Utils {
 
+    /**
+     * Metodo createCard recibe el objeto Card y basado en los casos otorgados por el CardType retorna el objeto Card con propiedades.
+     *
+     * @method createCard
+     * @param {Card} card Carta a crear.
+     * @return {Card} Retorna el objeto Card creado.
+     * @public
+     */
     public static createCard(card: Card): Card {
         switch (card.type) {
             case CardType.Numeric:
@@ -26,10 +42,26 @@ export class Utils {
         }
     }
 
+    /**
+     * Metodo createCards recibe un array de objetos Card y retorna el array de objetos Card con propiedades.
+     *
+     * @method createCards
+     * @param {Card[]} cards Cartas a crear.
+     * @return {Card[]} Retorna el Array de Card creado.
+     * @public
+     */
     public static createCards(cards: Card[]): Card[] {
         return cards.map(card => Utils.createCard(card));
     }
 
+    /**
+     * Metodo compareCard, Recibe 2 cartas y las compara. Retorna true si son iguales.
+     *
+     * @method compareCard
+     * @param {Card} card1 Carta 1 a comparar.
+     * @param {Card} card2 Carta 2 a comparar.
+     * @return {boolean} Retorna true si las cartas son iguales.
+     */
     public static compareCard(card1: Card, card2: Card): boolean {
 
         if (card1.type != card2.type) {

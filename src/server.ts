@@ -1,4 +1,7 @@
-
+/**
+ * Punto de entrada del servidor, escucha todos los mensajes de los clientes.
+ * @author Jhon Pedroza <jhonfpedroza@gmail.com>
+ */
 
 import * as express from "express";
 import * as http from "http";
@@ -22,63 +25,63 @@ app.use(express.static(path.join(__dirname, "public")/*, { maxAge: 31557600000 }
 
 let game = new ServerGame(io);
 
-io.on("connection", function(socket) {
+io.on("connection", (socket) => {
     console.log("A new client has connected");
 
-    socket.on("restart", function () {
+    socket.on("restart", () => {
         game = new ServerGame(io);
-        io.sockets.emit("restart");
+        game.emitAll("restart");
     });
 
-    socket.on("new-player", function (player: Player) {
+    socket.on("new-player", (player: Player) => {
         if (game.newPlayer(player, socket)) {
-            io.sockets.emit("players", game.players);
+            game.emitAll("players", game.players);
         } else {
             socket.emit("game-already-started");
         }
     });
 
-    socket.on("update-player", function (player: Player) {
+    socket.on("update-player", (player: Player) => {
         game.updatePlayer(player);
     });
 
-    socket.on("start", function (player: Player) {
+    socket.on("start", (player: Player) => {
         game.start(player);
     });
 
-    socket.on("stage-ready", function (player: Player, stage: number) {
+    socket.on("stage-ready", (player: Player, stage: number) => {
         game.stageReady(player, stage);
     });
 
-    socket.on("select-card", function (card: Card) {
+    socket.on("select-card", (card: Card) => {
         game.selectCard(card);
     });
 
-    socket.on("select-color", function (color: Color) {
+    socket.on("select-color", (color: Color) => {
         game.selectColor(color);
     });
 
-    socket.on("turn-ended", function (player: Player) {
+    socket.on("turn-ended", (player: Player) => {
         game.turnEnded(player);
     });
 
-    socket.on("pick-from-deck", function (player: Player) {
+    socket.on("pick-from-deck", (player: Player) => {
         game.pickFromDeck(player);
     });
 
-    socket.on("say-uno", function (player: Player) {
+    socket.on("say-uno", (player: Player) => {
         game.sayUno(player);
     });
 
-    socket.on("didnt-say-uno", function (player: Player) {
+    socket.on("didnt-say-uno", (player: Player) => {
         game.didntSayUno(player);
     });
 
-    socket.on("log-out", function (player: Player) {
+    socket.on("log-out", (player: Player) => {
         game.logOut(player);
     });
 });
 
-server.listen(app.get("port"), function() {
+server.listen(app.get("port"), () => {
     console.log("Server running at http://localhost:" + app.get("port"));
 });
