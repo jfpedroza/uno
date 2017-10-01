@@ -34,7 +34,7 @@ export class UIHelper {
 
     /**
      * Representa la página de cartas que se están mostrando.
-     * 
+     *
      * @property page
      * @type {number}
      * @default 1
@@ -375,7 +375,7 @@ export class UIHelper {
             $("#log-out-btn").hide();
         }
     }
-    
+
     /**
      * El metodo setPage recibe la página de las cartas que se quiere mostrar.
      *
@@ -426,7 +426,7 @@ export class UIHelper {
 
         game.socket.emit("stage-ready", game.player, game.ui.stage);
     }
-    
+
     /**
      * Configura el modal de selección color.
      *
@@ -463,7 +463,7 @@ export class UIHelper {
             show: false
         });
 
-        modal.on("hide.bs.modal", ()=> {
+        modal.on("hide.bs.modal", () => {
             this.setStage(2);
             this.game.setRound(this.game.round + 1);
         });

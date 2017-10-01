@@ -427,19 +427,25 @@ export class ServerGame implements Game {
     public logOut(player: Player) {
         player = this.getPlayer(player.id);
 
-        let next = this.getNextPlayer(false);
+        let next: Player = null;
+        if (this.gameStarted) {
+            next = this.getNextPlayer(false);
+        }
+
         this.players.splice(this.players.indexOf(player), 1);
 
         if (this.players.length > 1) {
             this.sockets[player.id].disconnect(true);
             this.emitAll("logged-out", player);
-            this.updateCardCount();
+            if (this.gameStarted) {
+                this.updateCardCount();
 
-            if (player.id == this.currentPlayer.id) {
-                this.currentPlayer = next;
-                this.emitAll("set-current-player", this.currentPlayer);
+                if (player.id == this.currentPlayer.id) {
+                    this.currentPlayer = next;
+                    this.emitAll("set-current-player", this.currentPlayer);
+                }
             }
-        } else {
+        } else if (this.gameStarted) {
             this.winner = this.players[0];
             this.emitAll("end-game", this.winner);
         }

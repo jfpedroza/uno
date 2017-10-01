@@ -1,6 +1,6 @@
 /**
  * @author Jhon Pedroza <jhonfpedroza@gmail.com>
-*/
+ */
 
 import {Game} from "../models/Game";
 import {Color} from "../models/Color";
@@ -468,6 +468,8 @@ export class ClientGame implements Game {
 
         this.players.splice(this.players.indexOf(ply), 1);
         this.ui.renderPlayers();
-        this.setCurrentPlayer(this.currentPlayer);
+        if (this.ui.stage > 2) {
+            this.setCurrentPlayer(this.currentPlayer);
+        }
     }
 }
